@@ -11,3 +11,5 @@ license = "Apache-2.0"
 keywords = [ "encryption", "age", "recipients", "stanza", "moonbit" ]
 
 description = "moonseal — file and message encryption for MoonBit: a header of recipient stanzas over a streaming AEAD payload, so one ciphertext opens for any of several keys or a passphrase."
+
+source = "src"
