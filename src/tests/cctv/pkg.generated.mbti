@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/tests/cctv"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub let vectors : Array[Vector]
+
+// Errors
+
+// Types and methods
+pub(all) enum Expect {
+  Success
+  HeaderFailure
+  PayloadFailure
+  MacFailure
+  NoMatch
+  ArmorFailure
+  Skipped
+} derive(Eq, @debug.Debug)
+pub fn Expect::equal(Self, Self) -> Bool
+pub fn Expect::not_equal(Self, Self) -> Bool
+pub fn Expect::output(Self, &Logger) -> Unit
+pub fn Expect::to_repr(Self) -> @debug.Repr
+pub fn Expect::to_string(Self) -> String
+pub impl Show for Expect
+
+pub(all) struct Vector {
+  name : String
+  expect : Expect
+  armored : Bool
+  identities : Array[String]
+  passphrases : Array[String]
+  digest : String
+  data : String
+}
+
+// Type aliases
+
+// Traits
