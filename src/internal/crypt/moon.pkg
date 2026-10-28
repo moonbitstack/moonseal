@@ -1,0 +1,21 @@
+// The algorithms this library composes, behind names of its own.
+//
+// https://www.rfc-editor.org/rfc/rfc5869 (HKDF)
+// https://www.rfc-editor.org/rfc/rfc8439 (ChaCha20-Poly1305)
+// https://www.rfc-editor.org/rfc/rfc7748 (X25519)
+//
+// One thin layer, for two reasons. It keeps a change of algorithm to one file
+// rather than six, and it keeps the algorithms' own error types from leaking
+// into a format whose failures are all one type: an authentication tag that does
+// not match is `None` here, not an exception a caller has to know the name of.
+//
+// Not here: anything the format does not use, and any decision about which
+// algorithm to use where — that belongs to the packages that call this one.
+import {
+  "moonbitstack/mooncrypt/aead/chachapoly",
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/mooncrypt/kdf/hkdf",
+  "moonbitstack/mooncrypt/kex/x25519",
+  "moonbitstack/mooncrypt/mac/hmac",
+  "moonbitstack/mooncrypt/spec",
+}

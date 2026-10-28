@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/header"
+
+import {
+  "moonbitstack/moonseal/spec",
+}
+
+// Values
+pub let limit : Int32
+
+pub let version : String
+
+// Errors
+
+// Types and methods
+pub struct Header {
+  // private fields
+}
+pub fn Header::decode(BytesView) -> (Self, Int32) raise @spec.Refused
+pub fn Header::encode(Self, file_key~ : BytesView) -> Bytes
+pub fn Header::new(Array[@spec.Stanza]) -> Self raise @spec.Refused
+pub fn Header::stanzas(Self) -> Array[@spec.Stanza]
+pub fn Header::verify(Self, file_key~ : BytesView) -> Unit raise @spec.Refused
+
+// Type aliases
+
+// Traits

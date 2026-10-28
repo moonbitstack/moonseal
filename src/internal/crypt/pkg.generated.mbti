@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/internal/crypt"
+
+// Values
+pub fn eq(BytesView, BytesView) -> Bool
+
+pub fn hkdf(BytesView, BytesView, BytesView, len~ : Int32) -> Bytes
+
+pub fn hmac(BytesView, BytesView) -> Bytes
+
+pub let key_size : Int32
+
+pub fn open(BytesView, BytesView, BytesView) -> Bytes?
+
+pub fn seal(BytesView, BytesView, BytesView) -> Bytes
+
+pub let tag_size : Int32
+
+pub fn x25519_public(BytesView) -> Bytes?
+
+pub fn x25519_shared(BytesView, BytesView) -> Bytes?
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

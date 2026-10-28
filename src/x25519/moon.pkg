@@ -1,0 +1,23 @@
+// The recipient type everyone uses: a public key per reader.
+//
+// https://www.rfc-editor.org/rfc/rfc7748 (X25519)
+// https://age-encryption.org/v1 (the stanza this type puts in the header)
+//
+// Between an ephemeral secret and the reader's public key there is a shared
+// secret nobody else can compute; HKDF turns it into a key, and the file key
+// travels inside one ChaCha20-Poly1305 message under it. The ephemeral half is
+// new for every stanza, which is what keeps two files to the same person from
+// looking alike.
+//
+// Not here: where the keys are stored, and whether the public key belongs to the
+// person it names. A format can carry a key; it cannot vouch for one.
+import {
+  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonseal/internal/bech32",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/spec",
+}
+
+import {
+  "moonbitstack/moonseal/internal/base64",
+} for "test"

@@ -13,3 +13,7 @@ keywords = [ "encryption", "age", "recipients", "stanza", "moonbit" ]
 description = "File and message encryption for MoonBit, for one or several recipients."
 
 source = "src"
+
+import {
+  "moonbitstack/mooncrypt@0.4.3",
+}

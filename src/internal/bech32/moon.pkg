@@ -1,0 +1,19 @@
+// Bech32 and bech32m, BIP 173 and BIP 350:
+// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
+// https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki
+//
+// This is how a public key becomes a string a person can read out loud
+// (`age1…`) and how a secret key becomes one (`AGE-SECRET-KEY-1…`). The
+// checksum is what makes a typo a refusal rather than a wrong key.
+//
+// Both variants live here because the two differ only in the constant the
+// checksum is mixed with, and a decoder has to tell them apart to be useful:
+// bech32m exists because bech32's checksum was found to miss the deletion of a
+// final `q`.
+//
+// Not here: the segwit address rules built on top — witness versions, program
+// lengths, the 8-to-5 padding rules of a script. This decodes the encoding, not
+// the addresses.
+import {
+  "moonbitlang/core/buffer",
+}

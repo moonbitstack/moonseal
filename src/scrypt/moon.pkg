@@ -1,0 +1,30 @@
+// The recipient type for a passphrase: no keys, no key exchange, just a lot of
+// memory.
+//
+// https://www.rfc-editor.org/rfc/rfc7914 (scrypt)
+// https://age-encryption.org/v1 (the stanza this type puts in the header)
+//
+// The file key is wrapped under a key stretched from the passphrase with scrypt,
+// salted with sixteen fresh bytes so that the same passphrase does not produce
+// the same key twice. The work factor is written into the stanza, which means a
+// reader has to accept whatever number a file asks for — hence the ceiling
+// below, and hence a stanza that asks for more is refused rather than attempted.
+//
+// An scrypt stanza must be the only stanza in a header. A passphrase carries no
+// identity, so mixing it with a public-key stanza would let a file look as if it
+// were addressed to somebody when it was not: only the format's own rule that a
+// password is alone with its file keeps that from being a lie.
+//
+// Not here: where the passphrase comes from, and whether it is any good. Both are
+// the caller's business, and the second is why the work factor is adjustable.
+import {
+  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/internal/kdf",
+  "moonbitstack/moonseal/spec",
+  "moonbitlang/core/encoding/utf8",
+}
+
+import {
+  "moonbitstack/moonseal/internal/base64",
+} for "test"

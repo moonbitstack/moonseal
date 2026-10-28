@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/armor"
+
+import {
+  "moonbitstack/moonseal/spec",
+}
+
+// Values
+pub fn decode(StringView) -> Bytes raise @spec.Refused
+
+pub fn encode(BytesView) -> String
+
+pub fn head() -> String
+
+pub let label : String
+
+// Errors
+
+// Types and methods
+pub struct Decoder {
+  // private fields
+}
+pub fn Decoder::finish(Self) -> Bytes raise @spec.Refused
+pub fn Decoder::new() -> Self
+pub fn Decoder::push(Self, StringView) -> Unit raise @spec.Refused
+pub fn Decoder::take(Self) -> Bytes
+
+pub struct Encoder {
+  // private fields
+}
+pub fn Encoder::finish(Self) -> String
+pub fn Encoder::new() -> Self
+pub fn Encoder::write(Self, BytesView) -> String
+
+type Place
+
+// Type aliases
+
+// Traits

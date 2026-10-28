@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/internal/bech32"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode(StringView) -> (String, Array[Int32], Variant) raise Malformed
+
+pub fn decode_bytes(StringView) -> (String, Bytes, Variant) raise Malformed
+
+pub fn encode(StringView, BytesView, variant~ : Variant) -> String raise Malformed
+
+pub fn encode_words(StringView, ArrayView[Int32], variant~ : Variant) -> String raise Malformed
+
+pub let limit : Int32
+
+// Errors
+pub(all) suberror Malformed {
+  Malformed(at~ : Int32, want~ : String)
+} derive(Eq, @debug.Debug)
+pub fn Malformed::equal(Self, Self) -> Bool
+pub fn Malformed::not_equal(Self, Self) -> Bool
+pub fn Malformed::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub(all) enum Variant {
+  Bech32
+  Bech32m
+} derive(Eq, @debug.Debug)
+pub fn Variant::equal(Self, Self) -> Bool
+pub fn Variant::not_equal(Self, Self) -> Bool
+pub fn Variant::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

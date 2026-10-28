@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/scrypt"
+
+import {
+  "moonbitstack/moonseal/spec",
+}
+
+// Values
+pub let default_log_n : Int32
+
+pub let max_log_n : Int32
+
+// Errors
+
+// Types and methods
+pub struct Identity {
+  // private fields
+}
+pub fn Identity::new(StringView, max_log_n? : Int32) -> Self
+pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -> Bytes? raise @spec.Refused
+pub impl @spec.Identity for Identity
+
+pub struct Recipient {
+  // private fields
+}
+pub fn Recipient::log_n(Self) -> Int32
+pub fn Recipient::new(StringView, log_n? : Int32) -> Self
+pub fn Recipient::wrap(Self, file_key~ : BytesView, entropy~ : @spec.Entropy) -> @spec.Stanza raise @spec.Refused
+pub impl @spec.Recipient for Recipient
+
+// Type aliases
+
+// Traits

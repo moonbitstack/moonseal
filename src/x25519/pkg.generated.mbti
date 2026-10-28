@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/x25519"
+
+import {
+  "moonbitstack/moonseal/spec",
+}
+
+// Values
+pub let size : Int32
+
+// Errors
+
+// Types and methods
+pub struct Identity {
+  // private fields
+}
+pub fn Identity::code(Self) -> String
+pub fn Identity::generate(entropy~ : @spec.Entropy) -> Self raise @spec.Refused
+pub fn Identity::new(BytesView) -> Self raise @spec.Refused
+pub fn Identity::of(StringView) -> Self raise @spec.Refused
+pub fn Identity::public(Self) -> Recipient
+pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -> Bytes? raise @spec.Refused
+pub impl @spec.Identity for Identity
+
+pub struct Recipient {
+  // private fields
+}
+pub fn Recipient::code(Self) -> String
+pub fn Recipient::key(Self) -> BytesView
+pub fn Recipient::new(BytesView) -> Self raise @spec.Refused
+pub fn Recipient::of(StringView) -> Self raise @spec.Refused
+pub fn Recipient::wrap(Self, file_key~ : BytesView, entropy~ : @spec.Entropy) -> @spec.Stanza raise @spec.Refused
+pub impl @spec.Recipient for Recipient
+
+// Type aliases
+
+// Traits

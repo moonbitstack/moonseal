@@ -1,11 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbitstack/moonseal/cmd/main"
+package "moonbitstack/moonseal/examples/recipient"
 
 // Values
 
 // Errors
 
 // Types and methods
+type Identity
+
+type Recipient
 
 // Type aliases
 

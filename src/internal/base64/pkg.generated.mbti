@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/internal/base64"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode(StringView) -> Bytes raise Malformed
+
+pub fn decode_padded(StringView) -> Bytes raise Malformed
+
+pub fn encode(BytesView) -> String
+
+pub fn encode_padded(BytesView) -> String
+
+// Errors
+pub(all) suberror Malformed {
+  Malformed(at~ : Int32)
+} derive(Eq, @debug.Debug)
+pub fn Malformed::equal(Self, Self) -> Bool
+pub fn Malformed::not_equal(Self, Self) -> Bool
+pub fn Malformed::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,9 @@
+// The contract the rest of this library is written against: the error type, the
+// recipient stanza, and the two traits a recipient type implements.
+//
+// It is a package of its own so that a third-party recipient type can depend on
+// the contract without depending on the container that drives it, and so that
+// every package here can raise one error type rather than translate between
+// several.
+//
+// https://age-encryption.org/v1

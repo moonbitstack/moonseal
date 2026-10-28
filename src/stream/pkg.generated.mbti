@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/stream"
+
+import {
+  "moonbitstack/moonseal/spec",
+}
+
+// Values
+pub let chunk : Int32
+
+pub let nonce : Int32
+
+pub fn payload_key(file_key~ : BytesView, nonce~ : BytesView) -> Bytes
+
+pub let tag : Int32
+
+// Errors
+
+// Types and methods
+pub struct Opener {
+  // private fields
+}
+pub fn Opener::chunk(Self, cipher~ : BytesView, last~ : Bool) -> Bytes raise @spec.Refused
+pub fn Opener::chunks(Self) -> Int32
+pub fn Opener::done(Self) -> Bool
+pub fn Opener::new(key~ : BytesView) -> Self raise @spec.Refused
+
+pub struct Sealer {
+  // private fields
+}
+pub fn Sealer::chunk(Self, plain~ : BytesView, last~ : Bool) -> Bytes
+pub fn Sealer::chunks(Self) -> Int32
+pub fn Sealer::new(key~ : BytesView) -> Self raise @spec.Refused
+
+// Type aliases
+
+// Traits

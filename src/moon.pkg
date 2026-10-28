@@ -1,2 +1,33 @@
-// What this package implements, and a first-hand link to the specification it
-// implements. A package without that link is not finished.
+// Sealing a file for one or several readers, and opening it again.
+//
+// https://age-encryption.org/v1
+//
+// A file is a header of recipient stanzas over a payload. Each stanza carries the
+// same sixteen-byte file key, wrapped for one reader, so a file addressed to four
+// people is one file and any one of them opens it. The payload is one long
+// stream of chunks, each authenticated on its own, so a file larger than memory
+// can be sealed and opened without ever being held whole.
+//
+// What this package adds to the pieces below it is the order: draw the file key,
+// let each recipient wrap it, write the header and its MAC, draw the payload
+// nonce, then stream. That order is the whole of the format's meaning, and it is
+// written once here rather than in every caller.
+//
+// Not here: where keys come from, whether they belong to the people they name,
+// and where files live. Those are the caller's, and this library has no state to
+// keep them in.
+import {
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal/armor",
+  "moonbitstack/moonseal/header",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/stream",
+}
+
+import {
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal/header",
+  "moonbitstack/moonseal/stream",
+  "moonbitstack/moonseal/x25519",
+} for "test"

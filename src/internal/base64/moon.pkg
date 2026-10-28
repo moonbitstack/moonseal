@@ -1,0 +1,14 @@
+// Base 64, RFC 4648, in the two moods this library needs it in:
+// https://www.rfc-editor.org/rfc/rfc4648
+//
+// The header and the stanza bodies want the unpadded alphabet with the
+// canonical-encoding rule of RFC 4648 §3.5 enforced on the way in; the ASCII
+// armor wants the padded alphabet of §4. Both directions must be exact: a
+// decoder that accepts a second spelling of the same bytes lets two different
+// files carry the same header MAC, and every test vector that pins an encoding
+// would still pass.
+//
+// Not here: the URL and filename alphabets, which the format does not use.
+import {
+  "moonbitlang/core/buffer",
+}

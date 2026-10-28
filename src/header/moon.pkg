@@ -1,0 +1,29 @@
+// The header: the part of the file that says who can open it.
+//
+// https://age-encryption.org/v1
+//
+// A version line, one or more recipient stanzas, and a MAC over everything
+// above it. Each stanza wraps the same file key, so a file addressed to three
+// people is one file, and the header is written so that the reader never has to
+// understand a stanza to carry it — which is what lets a recipient type this
+// library has never heard of travel through it untouched.
+//
+// The MAC is what makes the stanza list trustworthy: without it, anyone could
+// add a stanza of their own to a file in transit and read it. It is keyed from
+// the file key, so it can only be checked after a stanza has been opened, which
+// is why the header is authenticated before a single byte of payload is
+// decrypted.
+//
+// Not here: the recipient types themselves. This reads and writes the shape
+// they live in.
+import {
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/spec",
+}
+
+import {
+  "moonbitlang/core/encoding/utf8",
+} for "test"

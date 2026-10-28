@@ -1,0 +1,13 @@
+// A recipient type that is not part of the library, sealed and opened through the
+// same calls: `moon run src/examples/recipient`.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/mooncrypt/aead/chachapoly",
+  "moonbitstack/mooncrypt/kdf/hkdf",
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/mooncrypt/spec" @cryptspec,
+}

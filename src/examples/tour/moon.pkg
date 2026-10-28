@@ -1,6 +1,10 @@
-// Everything this repository does, in one run: `moon run src/examples/tour`.
+// Everything this library does, in one run: `moon run src/examples/tour`.
 pkgtype(kind: "executable")
 
 import {
+  "moonbitlang/core/encoding/utf8",
   "moonbitstack/moonseal",
+  "moonbitstack/moonseal/scrypt",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/x25519",
 }

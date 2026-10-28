@@ -1,0 +1,22 @@
+// The payload: one long stream cut into 64 KiB chunks, each authenticated on its
+// own.
+//
+// https://age-encryption.org/v1 (the STREAM construction, of Hoang, Reyhanitabar,
+// Rogaway and Vizár)
+//
+// Chunking is what lets a file be sealed and opened without being held whole:
+// the sender encrypts a chunk, writes it, and forgets it. The price is that the
+// chunk index has to be authenticated along with the data — otherwise a chunk
+// could be dropped, repeated or moved — which is what the last two bytes of every
+// nonce are for.
+//
+// Not here: reading and writing. This turns 64 KiB of plaintext into 64 KiB and a
+// tag, and back; where those bytes come from and go to is the caller's business.
+import {
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/spec",
+}
+
+import {
+  "moonbitlang/core/buffer",
+} for "test"

@@ -1,13 +1,54 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "moonbitstack/moonseal"
 
+import {
+  "moonbitstack/moonseal/spec",
+}
+
 // Values
-pub fn greet(StringView) -> String
+pub fn drain(&Source) -> Bytes raise @spec.Refused
+
+pub fn open(Array[&@spec.Identity], BytesView) -> Bytes raise @spec.Refused
+
+pub fn open_armored(Array[&@spec.Identity], StringView) -> Bytes raise @spec.Refused
+
+pub fn open_stream(&Sink, Array[&@spec.Identity], &Source) -> Unit raise @spec.Refused
+
+pub fn open_stream_armored(&Sink, Array[&@spec.Identity], &Source) -> Unit raise @spec.Refused
+
+pub fn seal(Array[&@spec.Recipient], BytesView, entropy~ : @spec.Entropy) -> Bytes raise @spec.Refused
+
+pub fn seal_armored(Array[&@spec.Recipient], BytesView, entropy~ : @spec.Entropy) -> String raise @spec.Refused
+
+pub fn seal_stream(&Sink, Array[&@spec.Recipient], &Source, entropy~ : @spec.Entropy) -> Unit raise @spec.Refused
+
+pub fn seal_stream_armored(&Sink, Array[&@spec.Recipient], &Source, entropy~ : @spec.Entropy) -> Unit raise @spec.Refused
 
 // Errors
 
 // Types and methods
+pub struct BytesSink {
+  // private fields
+}
+pub fn BytesSink::bytes(Self) -> Bytes
+pub fn BytesSink::new() -> Self
+pub fn BytesSink::write(Self, bytes~ : BytesView) -> Unit raise @spec.Refused
+pub impl Sink for BytesSink
+
+pub struct BytesSource {
+  // private fields
+}
+pub fn BytesSource::new(BytesView) -> Self
+pub fn BytesSource::read(Self, limit~ : Int32) -> Bytes raise @spec.Refused
+pub impl Source for BytesSource
 
 // Type aliases
 
 // Traits
+pub(open) trait Sink {
+  fn write(Self, bytes~ : BytesView) -> Unit raise @spec.Refused
+}
+
+pub(open) trait Source {
+  fn read(Self, limit~ : Int32) -> Bytes raise @spec.Refused
+}

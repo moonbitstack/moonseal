@@ -1,0 +1,25 @@
+// scrypt, RFC 7914:
+// https://www.rfc-editor.org/rfc/rfc7914
+//
+// A password stretched into a key that costs memory as well as time, which is
+// what makes a guess at a password expensive for whoever is guessing. The
+// sequential pass over a large buffer is the part that resists a machine built
+// out of cheap parallel cores.
+//
+// Salsa20/8 and the PBKDF2 wrapper are here rather than taken from a library:
+// the first is a step of this construction and not a cipher anything should
+// reach for, and the second is only ever called with one round, where its role
+// is to spread the password across the initial buffer.
+//
+// Not here: the higher-level formats that wrap scrypt with their own salt and
+// parameters. This is the function of RFC 7914 §5, nothing on top.
+import {
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/mooncrypt/kdf/pbkdf2",
+  "moonbitstack/mooncrypt/spec",
+}
+
+import {
+  "moonbitlang/core/encoding/hex",
+  "moonbitlang/core/encoding/utf8",
+} for "test"

@@ -1,0 +1,28 @@
+// ASCII armor: the same file as text, for the places a binary file cannot go.
+//
+// https://www.rfc-editor.org/rfc/rfc7468 (strict PEM, §3)
+//
+// A `-----BEGIN AGE ENCRYPTED FILE-----` line, base64 in 64-column lines, and a
+// matching `-----END` line. This is the one place in the format that uses
+// padding: everything else is raw base64, and an armor that mixes the two is an
+// armor that two implementations will disagree about.
+//
+// Decoding is strict on purpose. Whitespace before and after the block is
+// allowed because mail clients add it, and a line ending may be LF or CRLF
+// because the platform decides that — but nothing inside may be shortened,
+// lengthened, padded twice or wrapped in a second encoding, since every one of
+// those is a way for two readers to see different bytes in one file.
+//
+// Not here: the PEM headers RFC 7468 allows for other labels. This label has
+// none, and a reader that skipped unknown ones would be reading a file the
+// sender did not write.
+import {
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonseal/spec",
+}
+
+import {
+  "moonbitlang/core/buffer",
+} for "test"
