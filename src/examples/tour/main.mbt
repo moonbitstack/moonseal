@@ -8,23 +8,13 @@
 ///     moon run src/examples/tour
 
 ///|
-/// A stand-in for the platform's random source.
-///
-/// This library holds no entropy of its own: which source to use is a platform
-/// question, and guessing wrong is silent rather than loud. In a real program
-/// these bytes come from the operating system; here they come from a counter so
-/// that the run is the same every time.
+/// Fixed secret keys, so that the keys this prints are the same every run. The
+/// files are sealed with the operating system's randomness, as a program would.
 #coverage.skip
 fn bytes(len : Int32, seed : Int32) -> Bytes {
   Bytes::from_array(
     Array::makei(len, fn(i) { ((i * 13 + seed * 29) % 256).to_byte() }),
   )
-}
-
-///|
-#coverage.skip
-fn pool(len : Int32, seed : Int32) -> @spec.Entropy {
-  @spec.Entropy::new(bytes(len, seed))
 }
 
 ///|
@@ -53,7 +43,7 @@ fn tour() -> Unit raise @spec.Refused {
   let file = @moonseal.seal(
     recipients,
     b"the quick brown fox\n",
-    entropy=pool(256, 3),
+    random=@system.source,
   )
   println("sealed: \{file.length()} bytes")
 
@@ -66,7 +56,7 @@ fn tour() -> Unit raise @spec.Refused {
   let sealed_with_passphrase = @moonseal.seal(
     [@scrypt.Recipient::new("correct horse battery staple", log_n=10)],
     b"the quick brown fox\n",
-    entropy=pool(64, 5),
+    random=@system.source,
   )
   let passphrase : Array[&@spec.Identity] = [
     @scrypt.Identity::new("correct horse battery staple"),
@@ -91,7 +81,7 @@ fn tour() -> Unit raise @spec.Refused {
   let armored = @moonseal.seal_armored(
     [alice.public()],
     b"hello from an email\n",
-    entropy=pool(128, 4),
+    random=@system.source,
   )
   println(armored)
   println("and back: \{text(@moonseal.open_armored([alice], armored))}")

@@ -5,14 +5,14 @@
 /// The work factor is written into the file, so it is the sender's choice and the
 /// reader's limit that meet in the stanza.
 test "the work factor is written and read" {
-  let entropy = @spec.Entropy::new(Bytes::make(64, 0x21))
+  let random = @moonrand.Replay::new(Bytes::make(64, 0x21))
   // Fourteen is sixteen mebibytes of scratch space, which is as far as a test
   // that runs on four backends should go: the work factor changes the cost, not
   // the code, and the default of eighteen is the same path with a longer walk.
   for log_n in [10, 12, 14] {
     let stanza = @scrypt.Recipient::new("password", log_n~).wrap(
       file_key=Bytes::make(16, 1),
-      entropy~,
+      random~,
     ) catch {
       error => fail("cannot wrap: \{error}")
     }
@@ -39,7 +39,7 @@ test "the default work factor is eighteen" {
 test "a work factor above the reader's ceiling is refused" {
   let stanza = @scrypt.Recipient::new("password", log_n=12).wrap(
     file_key=Bytes::make(16, 1),
-    entropy=@spec.Entropy::new(Bytes::make(64, 5)),
+    random=@moonrand.Replay::new(Bytes::make(64, 5)),
   ) catch {
     _ => abort("no")
   }
@@ -61,7 +61,7 @@ test "a work factor above the reader's ceiling is refused" {
 test "the wrong passphrase opens nothing" {
   let stanza = @scrypt.Recipient::new("password", log_n=10).wrap(
     file_key=Bytes::make(16, 1),
-    entropy=@spec.Entropy::new(Bytes::make(64, 7)),
+    random=@moonrand.Replay::new(Bytes::make(64, 7)),
   ) catch {
     _ => abort("no")
   }
@@ -78,7 +78,7 @@ test "a work factor that is not a plain decimal is refused" {
   for case in cases {
     let stanza = @spec.Stanza::new(
       kind="scrypt",
-      args=[@base64.encode(Bytes::make(16, 0)), case],
+      args=[@base64.encode(Bytes::make(16, 0), padding=false), case],
       body=Bytes::make(32, 0),
     )
     let refused = try {
@@ -98,7 +98,7 @@ test "a salt that is not sixteen bytes is refused" {
   for size in [0, 8, 15, 17, 32] {
     let stanza = @spec.Stanza::new(
       kind="scrypt",
-      args=[@base64.encode(Bytes::make(size, 0)), "10"],
+      args=[@base64.encode(Bytes::make(size, 0), padding=false), "10"],
       body=Bytes::make(32, 0),
     )
     let refused = try {

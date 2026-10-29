@@ -3,9 +3,11 @@ package "moonbitstack/moonseal/spec"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitstack/moonrand",
 }
 
 // Values
+pub fn draw(&@moonrand.Source, Int32) -> Bytes raise Refused
 
 // Errors
 pub(all) suberror Refused {
@@ -16,7 +18,7 @@ pub(all) suberror Refused {
   Payload(at~ : Int32)
   Armor(at~ : Int32, want~ : String)
   Key(want~ : Int32, got~ : Int32)
-  Entropy(want~ : Int32, got~ : Int32)
+  Random(@moonrand.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
 } derive(Eq, @debug.Debug)
 pub fn Refused::equal(Self, Self) -> Bool
@@ -27,13 +29,6 @@ pub fn Refused::to_string(Self) -> String
 pub impl Show for Refused
 
 // Types and methods
-pub struct Entropy {
-  // private fields
-}
-pub fn Entropy::left(Self) -> Int32
-pub fn Entropy::new(BytesView) -> Self
-pub fn Entropy::take(Self, len~ : Int32) -> BytesView raise Refused
-
 pub(all) struct Stanza {
   kind : String
   args : Array[String]
@@ -49,5 +44,5 @@ pub(open) trait Identity {
 }
 
 pub(open) trait Recipient {
-  fn wrap(Self, file_key~ : BytesView, entropy~ : Entropy) -> Stanza raise Refused
+  fn wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> Stanza raise Refused
 }

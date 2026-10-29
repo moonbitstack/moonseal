@@ -83,7 +83,7 @@ pub fn Encoder::write(self : Encoder, bytes : BytesView) -> String {
   let mut at = 0
   while held.length() - at >= group {
     out.write_string(
-      @base64.encode(held.clamped_view(start=at, end=at + group)),
+      @base64.encode(held.clamped_view(start=at, end=at + group), padding=false),
     )
     out.write_char('\n')
     at = at + group
@@ -101,7 +101,7 @@ pub fn Encoder::finish(self : Encoder) -> String {
   let held = self.pending.to_bytes()
   let out = StringBuilder(size_hint=8)
   if held.length() > 0 {
-    out.write_string(@base64.encode_padded(held))
+    out.write_string(@base64.encode(held))
     out.write_char('\n')
   }
   out.write_string("-----END \{label}-----\n")
@@ -220,7 +220,7 @@ fn Decoder::line_of(self : Decoder) -> Unit raise @spec.Refused {
           want="a line of at most 64 characters",
         )
       } else {
-        let decoded = @base64.decode_padded(text_of(line)) catch {
+        let decoded = @base64.decode(text_of(line), padding=true, strict=true) catch {
           _ => raise @spec.Refused::Armor(at=start, want="canonical base64")
         }
         self.out.write_bytes(decoded)

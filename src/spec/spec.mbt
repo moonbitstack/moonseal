@@ -8,9 +8,9 @@
 /// say what the format says it says, a stanza of a known type does not either,
 /// the MAC over the header does not check out, no identity opened any stanza, a
 /// payload chunk did not authenticate, the text was not the armor it claimed to
-/// be, the file key that came out of a stanza is not the size this format
-/// defines, there was less randomness than the file needs, or an input was
-/// longer than this library will read.
+/// be, a key is not the size this format defines, the random source the caller
+/// handed in could not give what the file needs, or an input was longer than
+/// this library will read.
 ///
 /// `at` is an offset in bytes from the start of the input the call was given.
 pub(all) suberror Refused {
@@ -21,7 +21,7 @@ pub(all) suberror Refused {
   Payload(at~ : Int32)
   Armor(at~ : Int32, want~ : String)
   Key(want~ : Int32, got~ : Int32)
-  Entropy(want~ : Int32, got~ : Int32)
+  Random(@moonrand.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
 } derive(Eq, Debug)
 
@@ -46,8 +46,7 @@ pub impl Show for Refused with fn output(self, logger) {
     Armor(at~, want~) => logger.write_string("not armor at byte \{at}: \{want}")
     Key(want~, got~) =>
       logger.write_string("a file key of \{want} bytes, not \{got}")
-    Entropy(want~, got~) =>
-      logger.write_string("\{want} bytes of randomness needed, \{got} left")
+    Random(why) => logger.write_string("no randomness: \{why}")
     Limit(want~, got~) =>
       logger.write_string("at most \{want} bytes, \{got} given")
   }
@@ -80,53 +79,25 @@ pub fn Stanza::new(
 }
 
 ///|
-/// The randomness a file needs, handed in by the caller rather than drawn here.
+/// `len` bytes from `random`, or the reason it had none as a refusal.
 ///
-/// This library holds no entropy source: which one is right depends on the
-/// platform, and a library that quietly picks one is a library that quietly
-/// picks a bad one on the platform nobody tested. A `Recipient` draws from this
-/// pool as it wraps; `moonseal` says how much a file needs before it starts.
-pub struct Entropy {
-  priv pool : Bytes
-  priv mut used : Int32
-}
-
-///|
-/// A pool of randomness. The bytes are consumed in order: a file key first, then
-/// whatever each recipient type needs, then the payload nonce.
-pub fn Entropy::new(bytes : BytesView) -> Self {
-  { pool: bytes.to_owned(), used: 0, }
-}
-
-///|
-/// The next `len` bytes, or a refusal if the pool is shorter than that. The
-/// refusal is checked before anything is written, so a caller that hands in too
-/// little gets a clean failure rather than a file encrypted with half a key.
-pub fn Entropy::take(self : Entropy, len~ : Int32) -> BytesView raise Refused {
-  if self.used + len > self.pool.length() {
-    raise Refused::Entropy(want=len, got=self.pool.length() - self.used)
+/// A recipient type calls this for its ephemeral material, so that a failing
+/// source arrives as the one error type every call here raises.
+pub fn draw(random : &@moonrand.Source, len : Int32) -> Bytes raise Refused {
+  @moonrand.bytes(len, random) catch {
+    why => raise Refused::Random(why)
   }
-  let taken = self.pool.clamped_view(start=self.used, end=self.used + len)
-  self.used = self.used + len
-  taken
-}
-
-///|
-/// How many bytes are left.
-pub fn Entropy::left(self : Entropy) -> Int32 {
-  self.pool.length() - self.used
 }
 
 ///|
 /// A recipient type, from the encrypting side: it takes the file key and wraps
 /// it into a stanza only the matching identity can unwrap.
 ///
-/// `entropy` is where the ephemeral material comes from. It is passed rather
-/// than created so that a caller can seal a file reproducibly, and so that the
-/// pool is shared across the stanzas of one file instead of each type finding
-/// its own.
+/// `random` is where the ephemeral material comes from. It is passed rather
+/// than found so that the one source a caller chose serves every stanza of a
+/// file, and so that a `Replay` seals the same file twice.
 pub(open) trait Recipient {
-  fn wrap(Self, file_key~ : BytesView, entropy~ : Entropy) -> Stanza raise Refused
+  fn wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> Stanza raise Refused
 }
 
 ///|

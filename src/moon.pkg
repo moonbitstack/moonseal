@@ -23,6 +23,7 @@ import {
   "moonbitstack/moonseal/header",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/stream",
+  "moonbitstack/moonrand",
 }
 
 import {
@@ -30,4 +31,5 @@ import {
   "moonbitstack/moonseal/header",
   "moonbitstack/moonseal/stream",
   "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonrand",
 } for "test"

@@ -40,22 +40,39 @@ pub fn Recipient::new(key : BytesView) -> Self raise @spec.Refused {
 /// From its written form, `age1…`. The case of the string carries no meaning:
 /// bech32 allows either, and the checksum is taken over the lowercase one.
 pub fn Recipient::of(text : StringView) -> Self raise @spec.Refused {
-  let (hrp, data, variant) = @bech32.decode_bytes(text) catch {
-    _ => raise @spec.Refused::Stanza(want="a bech32 public key")
-  }
-  if hrp != recipient_hrp {
+  let key = decode_key(text, "a bech32 public key")
+  if key.hrp != recipient_hrp {
     raise @spec.Refused::Stanza(want="a key that starts with age1")
   }
-  if variant != @bech32.Bech32 {
-    raise @spec.Refused::Stanza(want="a bech32 checksum, not bech32m")
+  Recipient::new(key.data)
+}
+
+///|
+/// A key's prefix and bytes. A string whose checksum holds only as bech32m is
+/// named as such, since that is a mistake the caller can act on.
+fn decode_key(
+  text : StringView,
+  what : String,
+) -> @bech32.Decoded raise @spec.Refused {
+  @bech32.decode(text, kind=Bech32) catch {
+    _ => {
+      let only_bech32m = try @bech32.decode(text, kind=Bech32m) catch {
+        _ => false
+      } noraise {
+        _ => true
+      }
+      if only_bech32m {
+        raise @spec.Refused::Stanza(want="a bech32 checksum, not bech32m")
+      }
+      raise @spec.Refused::Stanza(want=what)
+    }
   }
-  Recipient::new(data)
 }
 
 ///|
 /// The written form, `age1…`.
 pub fn Recipient::code(self : Recipient) -> String {
-  @bech32.encode(recipient_hrp, self.key, variant=@bech32.Bech32) catch {
+  @bech32.encode(recipient_hrp, self.key, kind=Bech32) catch {
     _ => abort("x25519: a 32-byte key always encodes")
   }
 }
@@ -68,8 +85,8 @@ pub fn Recipient::key(self : Recipient) -> BytesView {
 
 ///|
 /// The encrypting side: an ephemeral secret, a share, and one wrapped file key.
-pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, entropy~) {
-  let secret = entropy.take(len=size)
+pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, random~) {
+  let secret = @spec.draw(random, size)
   let share = match @crypt.x25519_public(secret) {
     Some(share) => share
     None => abort("x25519: a freshly drawn secret is a valid scalar")
@@ -83,7 +100,7 @@ pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, entropy~) {
   }
   let key = @crypt.hkdf(shared, share.add(self.key), context, len=32)
   let body = @crypt.seal(key, zeros(), file_key)
-  @spec.Stanza::new(kind~, args=[@base64.encode(share)], body~)
+  @spec.Stanza::new(kind~, args=[@base64.encode(share, padding=false)], body~)
 }
 
 ///|
@@ -96,11 +113,12 @@ pub struct Identity {
 }
 
 ///|
-/// A new secret key, drawn from the entropy the caller handed in. A secret key is
-/// thirty-two random bytes and nothing else; X25519 clamps them when it uses
-/// them.
-pub fn Identity::generate(entropy~ : @spec.Entropy) -> Self raise @spec.Refused {
-  { scalar: entropy.take(len=size).to_owned(), }
+/// A new secret key, drawn from `random`. A secret key is thirty-two random
+/// bytes and nothing else; X25519 clamps them when it uses them.
+pub fn Identity::generate(
+  random~ : &@moonrand.Source,
+) -> Self raise @spec.Refused {
+  { scalar: @spec.draw(random, size), }
 }
 
 ///|
@@ -115,23 +133,18 @@ pub fn Identity::new(scalar : BytesView) -> Self raise @spec.Refused {
 ///|
 /// From its written form, `AGE-SECRET-KEY-1…`.
 pub fn Identity::of(text : StringView) -> Self raise @spec.Refused {
-  let (hrp, data, variant) = @bech32.decode_bytes(text) catch {
-    _ => raise @spec.Refused::Stanza(want="a bech32 secret key")
-  }
-  if hrp != "age-secret-key-" {
+  let key = decode_key(text, "a bech32 secret key")
+  if key.hrp != identity_hrp.to_lower() {
     raise @spec.Refused::Stanza(want="a key that starts with AGE-SECRET-KEY-1")
   }
-  if variant != @bech32.Bech32 {
-    raise @spec.Refused::Stanza(want="a bech32 checksum, not bech32m")
-  }
-  Identity::new(data)
+  Identity::new(key.data)
 }
 
 ///|
 /// The written form, `AGE-SECRET-KEY-1…`. Uppercase, which is how bech32 spells a
 /// secret so that it is hard to mistake for a public one.
 pub fn Identity::code(self : Identity) -> String {
-  @bech32.encode(identity_hrp, self.scalar, variant=@bech32.Bech32) catch {
+  @bech32.encode(identity_hrp, self.scalar, kind=Bech32).to_upper() catch {
     _ => abort("x25519: a 32-byte key always encodes")
   }
 }
@@ -162,7 +175,7 @@ pub impl @spec.Identity for Identity with fn unwrap(self, stanza~) {
   guard stanza.body.length() == 32 else {
     raise @spec.Refused::Stanza(want="a 32-byte body")
   }
-  let share = @base64.decode(stanza.args[0]) catch {
+  let share = @base64.decode(stanza.args[0], padding=false, strict=true) catch {
     _ => raise @spec.Refused::Stanza(want="a base64 share")
   }
   guard share.length() == size else {

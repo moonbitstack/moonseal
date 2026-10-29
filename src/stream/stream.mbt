@@ -64,7 +64,7 @@ pub struct Sealer {
 /// A sealer over a payload key of thirty-two bytes.
 pub fn Sealer::new(key~ : BytesView) -> Self raise @spec.Refused {
   if key.length() != @crypt.key_size {
-    raise @spec.Refused::Entropy(want=@crypt.key_size, got=key.length())
+    raise @spec.Refused::Key(want=@crypt.key_size, got=key.length())
   }
   { key: key.to_owned(), counter: FixedArray::make(11, b'\x00'), chunks: 0, }
 }
@@ -106,7 +106,7 @@ pub struct Opener {
 ///|
 pub fn Opener::new(key~ : BytesView) -> Self raise @spec.Refused {
   if key.length() != @crypt.key_size {
-    raise @spec.Refused::Entropy(want=@crypt.key_size, got=key.length())
+    raise @spec.Refused::Key(want=@crypt.key_size, got=key.length())
   }
   {
     key: key.to_owned(),

@@ -10,7 +10,7 @@ fn category(error : @spec.Refused) -> @cctv.Expect {
     NoMatch => @cctv.NoMatch
     Payload(..) => @cctv.PayloadFailure
     Armor(..) => @cctv.ArmorFailure
-    Entropy(..) | Limit(..) => @cctv.Skipped
+    Random(_) | Limit(..) => @cctv.Skipped
   }
 }
 
@@ -39,7 +39,7 @@ fn decoded(bytes : BytesView) -> StringView {
 /// Run one case and say what happened: the category of the outcome, and the
 /// plaintext when there is one.
 fn attempt(vector : @cctv.Vector) -> (@cctv.Expect, Bytes) {
-  let file = @base64.decode_padded(vector.data) catch {
+  let file = @base64.decode(vector.data, padding=true, strict=true) catch {
     _ => return (@cctv.Skipped, b"")
   }
   let identities : Array[&@spec.Identity] = []

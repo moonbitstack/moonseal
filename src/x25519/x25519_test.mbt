@@ -52,9 +52,9 @@ test "a stanza wraps the file key for its own key and no other" {
   let other = @x25519.Identity::new(Bytes::make(32, 0x77)) catch {
     _ => abort("no")
   }
-  let entropy = @spec.Entropy::new(Bytes::make(64, 0x08))
+  let random = @moonrand.Replay::new(Bytes::make(64, 0x08))
   let file_key = Bytes::make(16, 0x09)
-  let stanza = mine.public().wrap(file_key~, entropy~) catch {
+  let stanza = mine.public().wrap(file_key~, random~) catch {
       error => fail("cannot wrap: \{error}")
     }
   assert_eq(stanza.kind, "X25519")
@@ -71,7 +71,7 @@ test "a share that is a low order point is refused" {
   let mine = @x25519.Identity::of(known) catch { _ => abort("no") }
   let stanza = @spec.Stanza::new(
     kind="X25519",
-    args=[@base64.encode(Bytes::make(32, 0))],
+    args=[@base64.encode(Bytes::make(32, 0), padding=false)],
     body=Bytes::make(32, 0),
   )
   let refused = try {
@@ -100,7 +100,7 @@ test "a body of the wrong size is refused before it is decrypted" {
   let mine = @x25519.Identity::of(known) catch { _ => abort("no") }
   let stanza = @spec.Stanza::new(
     kind="X25519",
-    args=[@base64.encode(Bytes::make(32, 1))],
+    args=[@base64.encode(Bytes::make(32, 1), padding=false)],
     body=Bytes::make(48, 0),
   )
   let refused = try {

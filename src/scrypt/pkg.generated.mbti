@@ -2,6 +2,7 @@
 package "moonbitstack/moonseal/scrypt"
 
 import {
+  "moonbitstack/moonrand",
   "moonbitstack/moonseal/spec",
 }
 
@@ -25,7 +26,7 @@ pub struct Recipient {
 }
 pub fn Recipient::log_n(Self) -> Int32
 pub fn Recipient::new(StringView, log_n? : Int32) -> Self
-pub fn Recipient::wrap(Self, file_key~ : BytesView, entropy~ : @spec.Entropy) -> @spec.Stanza raise @spec.Refused
+pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> @spec.Stanza raise @spec.Refused
 pub impl @spec.Recipient for Recipient
 
 // Type aliases

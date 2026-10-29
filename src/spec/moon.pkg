@@ -7,3 +7,6 @@
 // several.
 //
 // https://age-encryption.org/v1
+import {
+  "moonbitstack/moonrand",
+}

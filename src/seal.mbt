@@ -95,28 +95,29 @@ pub impl Sink for BytesSink with fn write(self, bytes~) {
 ///|
 /// Seal `plain` for `recipients`, and give back the file.
 ///
-/// The file key and every stanza's ephemeral material come out of `entropy`, in
-/// that order, so that the same input and the same randomness give the same
-/// file. Handing in too few bytes is a refusal, and it arrives before the first
-/// byte is written.
+/// The file key, every stanza's ephemeral material and the payload nonce come
+/// out of `random`, in that order: `@system.source` from `moonrand/system` in a
+/// program, a `Replay` of fixed bytes in a test that wants the same file twice.
+/// A source that fails is a refusal, and it arrives before the first byte is
+/// written.
 ///
-/// How much randomness a file needs: sixteen bytes for the file key, then
-/// thirty-two for each X25519 recipient and sixteen for each scrypt recipient,
-/// then sixteen for the payload nonce.
+/// How much a file draws: sixteen bytes for the file key, then thirty-two for
+/// each X25519 recipient and sixteen for each scrypt recipient, then sixteen for
+/// the payload nonce.
 pub fn seal(
   recipients : Array[&@spec.Recipient],
   plain : BytesView,
-  entropy~ : @spec.Entropy,
+  random~ : &@moonrand.Source,
 ) -> Bytes raise @spec.Refused {
-  let file_key = entropy.take(len=file_key_size)
+  let file_key = @spec.draw(random, file_key_size)
   let stanzas = Array(capacity=recipients.length())
   for recipient in recipients {
-    stanzas.push(recipient.wrap(file_key~, entropy~))
+    stanzas.push(recipient.wrap(file_key~, random~))
   }
+  let nonce = @spec.draw(random, @stream.nonce)
   let head = @header.Header::new(stanzas)
   let out = @buffer.Buffer(size_hint=plain.length() + 1024)
   out.write_bytes(head.encode(file_key~))
-  let nonce = entropy.take(len=@stream.nonce)
   out.write_bytes(nonce)
   let sealer = @stream.Sealer::new(key=@stream.payload_key(file_key~, nonce~))
   let mut at = 0
@@ -135,9 +136,9 @@ pub fn seal(
 pub fn seal_armored(
   recipients : Array[&@spec.Recipient],
   plain : BytesView,
-  entropy~ : @spec.Entropy,
+  random~ : &@moonrand.Source,
 ) -> String raise @spec.Refused {
-  @armor.encode(seal(recipients, plain, entropy~))
+  @armor.encode(seal(recipients, plain, random~))
 }
 
 ///|

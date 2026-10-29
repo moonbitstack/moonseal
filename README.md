@@ -14,17 +14,15 @@ business — this library has no state to keep them in, and a format that kept
 some would no longer be a format.
 
 ```moonbit
-let salt = b"a random source lives here"[:]
-
 // Alice has a key pair; the public half is what a sender needs.
-let alice = @x25519.Identity::generate(entropy=@spec.Entropy::new(salt)) catch {
+let alice = @x25519.Identity::generate(random=@system.source) catch {
   _ => abort("no randomness")
 }
 println(alice.code())          // AGE-SECRET-KEY-1…
 println(alice.public().code()) // age1…
 
 let recipients : Array[&@spec.Recipient] = [alice.public()]
-let file = @moonseal.seal(recipients, b"the quick brown fox", entropy=@spec.Entropy::new(salt)) catch {
+let file = @moonseal.seal(recipients, b"the quick brown fox", random=@system.source) catch {
   _ => abort("cannot seal")
 }
 
@@ -52,7 +50,10 @@ Import the ones you use. Nothing here is linked until something calls it.
 
 ```bash
 moon add moonbitstack/moonseal
+moon add moonbitstack/moonrand
 ```
+
+`@system` above is `moonbitstack/moonrand/system`, the operating system's random source.
 
 ## Use
 
@@ -64,11 +65,10 @@ mixing it with a public key would let somebody be told a weaker story about who
 else can read the file.
 
 ```moonbit
-let pool = @spec.Entropy::new(b"a random source lives here"[:])
 let file = @moonseal.seal(
   [@scrypt.Recipient::new("correct horse battery staple", log_n=14)],
   b"the quick brown fox",
-  entropy=pool,
+  random=@system.source,
 ) catch {
   _ => abort("cannot seal")
 }
@@ -91,12 +91,11 @@ chunk plus a header is ever held.
 
 ```moonbit
 let sink = @moonseal.BytesSink::new()
-let pool = @spec.Entropy::new(b"a random source lives here"[:])
 @moonseal.seal_stream(
   sink,
   [@x25519.Recipient::of("age1…") catch { _ => abort("no") }],
   @moonseal.BytesSource::new(b"the quick brown fox"),
-  entropy=pool,
+  random=@system.source,
 ) catch {
   _ => abort("cannot seal")
 }
@@ -113,11 +112,10 @@ same file as a `-----BEGIN AGE ENCRYPTED FILE-----` block, and `open_armored`
 reads it back; the streaming forms do the same without holding the text either.
 
 ```moonbit
-let pool = @spec.Entropy::new(b"a random source lives here"[:])
 let text = @moonseal.seal_armored(
   [@x25519.Recipient::of("age1…") catch { _ => abort("no") }],
   b"the quick brown fox",
-  entropy=pool,
+  random=@system.source,
 ) catch {
   _ => abort("cannot seal")
 }
@@ -140,11 +138,12 @@ addressed to it:
 ```moonbit
 struct Example {}
 
-impl @spec.Recipient for Example with fn wrap(self, file_key~, entropy~) {
+impl @spec.Recipient for Example with fn wrap(self, file_key~, random~) {
   ignore(self)
-  ignore(entropy)
+  ignore(random)
   // The body is whatever the matching identity can unwrap. This one hands the
-  // file key over as it is, which is not a design to use.
+  // file key over as it is, which is not a design to use; a real type draws
+  // its ephemeral material with `@spec.draw(random, len)`.
   @spec.Stanza::new(kind="example.com/plain", args=[], body=file_key.to_owned())
 }
 
@@ -168,13 +167,13 @@ because at that point the file is broken rather than somebody else's.
 
 | | |
 |:--|:--|
-| `seal(recipients, plain, entropy~) -> Bytes` | Seal bytes for a list of recipients. |
+| `seal(recipients, plain, random~) -> Bytes` | Seal bytes for a list of recipients. |
 | `open(identities, cipher) -> Bytes` | Open a file with any one of these identities. |
-| `seal_armored(recipients, plain, entropy~) -> String` | The same file, as text. |
+| `seal_armored(recipients, plain, random~) -> String` | The same file, as text. |
 | `open_armored(identities, text) -> Bytes` | Open an armored block. |
-| `seal_stream(sink, recipients, source, entropy~)` | Seal from a source into a sink. |
+| `seal_stream(sink, recipients, source, random~)` | Seal from a source into a sink. |
 | `open_stream(sink, identities, source)` | Open from a source into a sink. |
-| `seal_stream_armored(sink, recipients, source, entropy~)` | The same, as text. |
+| `seal_stream_armored(sink, recipients, source, random~)` | The same, as text. |
 | `open_stream_armored(sink, identities, source)` | The same, as text. |
 | `drain(source) -> Bytes` | Everything a source has. |
 | `BytesSource::new(BytesView)` / `BytesSink::new()` / `BytesSink::bytes()` | The in-memory pair. |
@@ -184,10 +183,10 @@ because at that point the file is broken rather than somebody else's.
 
 | | |
 |:--|:--|
-| `Refused` | Why a call did not do what it was asked: a header that is not the format, a stanza of a known type that is not either, a MAC that does not verify, no identity that opens anything, a chunk that does not authenticate, armor that is not armor, a file key of the wrong size, not enough randomness, an input past a limit. |
+| `Refused` | Why a call did not do what it was asked: a header that is not the format, a stanza of a known type that is not either, a MAC that does not verify, no identity that opens anything, a chunk that does not authenticate, armor that is not armor, a key of the wrong size, a random source that failed, an input past a limit. |
 | `Stanza { kind, args, body }` | One recipient stanza, as the header carries it. |
-| `Entropy::new(bytes)` / `take(len~)` / `left()` | The randomness a file draws from, handed in by the caller. |
-| `Recipient::wrap(self, file_key~, entropy~) -> Stanza` | What a recipient type implements to address a file. |
+| `draw(random, len) -> Bytes` | Bytes from a random source, with its failure as a `Refused`. |
+| `Recipient::wrap(self, file_key~, random~) -> Stanza` | What a recipient type implements to address a file. |
 | `Identity::unwrap(self, stanza~) -> Bytes?` | What it implements to open one. |
 
 ### `header`, `stream`, `armor`
@@ -208,24 +207,23 @@ because at that point the file is broken rather than somebody else's.
 
 | | |
 |:--|:--|
-| `x25519.Identity::generate(entropy~)` / `Identity::new(scalar)` | A secret key, from randomness or from bytes. |
+| `x25519.Identity::generate(random~)` / `Identity::new(scalar)` | A secret key, from randomness or from bytes. |
 | `x25519.Identity::of(text)` / `code()` | `AGE-SECRET-KEY-1…` in and out. |
 | `x25519.Identity::public()` / `Recipient::of(text)` / `Recipient::code()` | `age1…` in and out. |
 | `scrypt.Recipient::new(passphrase, log_n?)` / `scrypt.Identity::new(passphrase, max_log_n?)` | A passphrase, with the work factor to write and the one to accept. |
 
 ## Where the randomness comes from
 
-This library has none. Which source is right depends on the platform, and a
-library that quietly picks one is a library that quietly picks a bad one on the
-platform nobody tested. Every call that needs randomness takes an `Entropy` pool
-instead, and draws from it in a fixed order: sixteen bytes for the file key, then
-whatever each recipient type needs for its stanza — thirty-two for X25519,
-sixteen for scrypt — then sixteen for the payload nonce. Give it fewer bytes than
-that and the call is refused before anything is written.
+From the caller. Every call that needs randomness takes `random`, a moonrand
+`Source`: `@system.source` from `moonrand/system` in a program, or anything else
+that implements the trait. A file draws in a fixed order: sixteen bytes for the
+file key, then what each recipient type needs for its stanza (thirty-two for
+X25519, sixteen for scrypt), then sixteen for the payload nonce. A source that
+fails is a `Refused::Random`, raised before anything is written.
 
-The same property makes sealing reproducible: the same plaintext, the same
-recipients and the same pool give the same file, byte for byte, which is what the
-test suite uses to pin the format.
+The fixed order makes sealing reproducible: the same plaintext, the same
+recipients and a `Replay` of the same bytes give the same file, byte for byte,
+which is what the test suite uses to pin the format.
 
 ## What a file looks like
 
@@ -248,7 +246,7 @@ sealed under the same recipients differ from their first byte.
 | Thing | Why not here |
 |:--|:--|
 | Key storage, trust, rotation, revocation | All four need state, and a library with state is no longer a format. |
-| A random-number generator | The platform has one; picking it is the caller's job, not this library's. |
+| A random-number generator | moonrand has them; the caller picks one and hands it in. |
 | Certificates and tokens | Those assert who somebody is. This is a message, and asserts nothing. |
 
 ## Licence

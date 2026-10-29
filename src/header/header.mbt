@@ -52,7 +52,9 @@ pub fn Header::stanzas(self : Header) -> Array[@spec.Stanza] {
 pub fn Header::encode(self : Header, file_key~ : BytesView) -> Bytes {
   let out = @buffer.from_bytes(self.prefix)
   out.write_byte(b' ')
-  out.write_bytes(@utf8.encode(@base64.encode(mac_over(self.prefix, file_key))))
+  out.write_bytes(
+    @utf8.encode(@base64.encode(mac_over(self.prefix, file_key), padding=false)),
+  )
   out.write_byte(b'\n')
   out.to_bytes()
 }
@@ -109,7 +111,11 @@ pub fn Header::decode(bytes : BytesView) -> (Header, Int32) raise @spec.Refused 
       if bytes[at + 3].to_int() != 32 {
         raise @spec.Refused::Header(at=at + 3, want="a space after ---")
       }
-      mac = @base64.decode(ascii(bytes, at + 4, end)) catch {
+      mac = @base64.decode(
+        ascii(bytes, at + 4, end),
+        padding=false,
+        strict=true,
+      ) catch {
         _ => raise @spec.Refused::Header(at=at + 4, want="the header MAC")
       }
       if mac.length() != mac_size {
@@ -164,7 +170,11 @@ fn stanza_at(
         want="at most 64 base64 characters",
       )
     }
-    let decoded = @base64.decode(ascii(bytes, cursor, body_end)) catch {
+    let decoded = @base64.decode(
+      ascii(bytes, cursor, body_end),
+      padding=false,
+      strict=true,
+    ) catch {
       _ => raise @spec.Refused::Header(at=cursor, want="a base64 body")
     }
     body.write_bytes(decoded)
@@ -303,7 +313,7 @@ fn render(stanzas : Array[@spec.Stanza]) -> Bytes {
       out.write_bytes(@utf8.encode(arg))
     }
     out.write_byte(b'\n')
-    let body = @base64.encode(stanza.body)
+    let body = @base64.encode(stanza.body, padding=false)
     let mut at = 0
     while at < body.length() {
       let end = if at + 64 < body.length() { at + 64 } else { body.length() }

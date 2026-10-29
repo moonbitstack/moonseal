@@ -15,5 +15,7 @@ description = "File and message encryption for MoonBit, for one or several recip
 source = "src"
 
 import {
-  "moonbitstack/mooncrypt@0.4.3",
+  "moonbitstack/mooncrypt@0.4.4",
+  "moonbitstack/moonrand@0.1.0",
+  "moonbitstack/moonbase@0.4.2",
 }

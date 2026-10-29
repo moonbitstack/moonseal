@@ -36,8 +36,8 @@ struct Recipient {
 }
 
 ///|
-impl @spec.Recipient for Recipient with fn wrap(self, file_key~, entropy~) {
-  let salt = entropy.take(len=16)
+impl @spec.Recipient for Recipient with fn wrap(self, file_key~, random~) {
+  let salt = @spec.draw(random, 16)
   let key = wrap_key(self.secret, salt)
   let aead = @chachapoly.ChaChaPoly::new(key) catch { _ => abort("no") }
   @spec.Stanza::new(
@@ -122,11 +122,7 @@ fn run() -> Unit raise @spec.Refused {
   let file = @moonseal.seal(
     [Recipient::{ secret: secret.to_owned(), }],
     b"the quick brown fox\n",
-    entropy=@spec.Entropy::new(
-      Bytes::from_array(
-        Array::makei(64, fn(i) { ((i * 37 + 11) % 256).to_byte() }),
-      ),
-    ),
+    random=@system.source,
   )
   println("sealed: \{file.length()} bytes")
   println(

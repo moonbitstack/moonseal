@@ -7,4 +7,5 @@ import {
   "moonbitstack/moonseal/scrypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonrand/system",
 }

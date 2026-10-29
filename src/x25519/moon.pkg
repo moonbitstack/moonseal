@@ -12,12 +12,13 @@
 // Not here: where the keys are stored, and whether the public key belongs to the
 // person it names. A format can carry a key; it cannot vouch for one.
 import {
-  "moonbitstack/moonseal/internal/base64",
-  "moonbitstack/moonseal/internal/bech32",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonbase/bech32",
   "moonbitstack/moonseal/internal/crypt",
   "moonbitstack/moonseal/spec",
+  "moonbitstack/moonrand",
 }
 
 import {
-  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonbase/base64",
 } for "test"

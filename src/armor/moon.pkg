@@ -19,7 +19,7 @@
 import {
   "moonbitlang/core/buffer",
   "moonbitlang/core/encoding/utf8",
-  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonbase/base64",
   "moonbitstack/moonseal/spec",
 }
 

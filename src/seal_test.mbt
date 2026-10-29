@@ -3,8 +3,8 @@
 
 ///|
 /// Randomness that is the same every time, so that two runs can be compared.
-fn pool(bytes : Int32, seed : Int32) -> @spec.Entropy {
-  @spec.Entropy::new(
+fn pool(bytes : Int32, seed : Int32) -> @moonrand.Replay {
+  @moonrand.Replay::new(
     Bytes::from_array(
       Array::makei(bytes, fn(i) { ((i * 31 + seed * 17) % 256).to_byte() }),
     ),
@@ -28,11 +28,7 @@ fn bob() -> @x25519.Identity {
 ///|
 test "a file for several readers opens for each of them" {
   let recipients : Array[&@spec.Recipient] = [alice().public(), bob().public()]
-  let file = @moonseal.seal(
-    recipients,
-    b"for both of you",
-    entropy=pool(128, 1),
-  ) catch {
+  let file = @moonseal.seal(recipients, b"for both of you", random=pool(128, 1)) catch {
     error => fail("cannot seal: \{error}")
   }
   for identity in [alice(), bob()] {
@@ -53,7 +49,7 @@ test "a file addressed to somebody else does not open" {
     },
   ]
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let file = @moonseal.seal(recipients, b"secret", entropy=pool(128, 2)) catch {
+  let file = @moonseal.seal(recipients, b"secret", random=pool(128, 2)) catch {
     _ => abort("no")
   }
   let refused = try {
@@ -79,7 +75,7 @@ test "the empty file and the long file both round trip" {
     ] {
     let plain = Bytes::make(size, 0x5C)
     let recipients : Array[&@spec.Recipient] = [alice().public()]
-    let file = @moonseal.seal(recipients, plain, entropy=pool(128, 3)) catch {
+    let file = @moonseal.seal(recipients, plain, random=pool(128, 3)) catch {
       error => fail("cannot seal \{size} bytes: \{error}")
     }
     let identities : Array[&@spec.Identity] = [alice()]
@@ -92,7 +88,7 @@ test "the empty file and the long file both round trip" {
 /// the chunk it belongs to does not authenticate.
 test "an edited payload does not open" {
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let file = @moonseal.seal(recipients, b"a message", entropy=pool(128, 4)) catch {
+  let file = @moonseal.seal(recipients, b"a message", random=pool(128, 4)) catch {
     _ => abort("no")
   }
   let bytes = file.to_array()
@@ -117,7 +113,7 @@ test "an edited payload does not open" {
 /// standing between a file and a second reader somebody else added on the way.
 test "an edited header does not open" {
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let file = @moonseal.seal(recipients, b"a message", entropy=pool(128, 5)) catch {
+  let file = @moonseal.seal(recipients, b"a message", random=pool(128, 5)) catch {
     _ => abort("no")
   }
   // The MAC line is the last thing in the header, so it ends where the header
@@ -142,12 +138,11 @@ test "too little randomness is refused before anything is written" {
   let recipients : Array[&@spec.Recipient] = [alice().public()]
   let refused = try {
     // Sixteen for the file key, thirty-two for the share, sixteen for the nonce.
-    ignore(@moonseal.seal(recipients, b"x", entropy=pool(63, 6)))
+    ignore(@moonseal.seal(recipients, b"x", random=pool(63, 6)))
     false
   } catch {
-    @spec.Refused::Entropy(want~, got~) => {
-      assert_eq(want, 16)
-      assert_eq(got, 15)
+    @spec.Refused::Random(why) => {
+      assert_eq(why, @moonrand.Exhausted)
       true
     }
     _ => false
@@ -161,7 +156,7 @@ test "too little randomness is refused before anything is written" {
 test "the stream and the buffer agree" {
   let plain = Bytes::make(2 * @stream.chunk + 7, 0x6D)
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let in_memory = @moonseal.seal(recipients, plain, entropy=pool(128, 7)) catch {
+  let in_memory = @moonseal.seal(recipients, plain, random=pool(128, 7)) catch {
     _ => abort("no")
   }
   let sink = @moonseal.BytesSink::new()
@@ -169,7 +164,7 @@ test "the stream and the buffer agree" {
     sink,
     recipients,
     @moonseal.BytesSource::new(plain),
-    entropy=pool(128, 7),
+    random=pool(128, 7),
   ) catch {
     error => fail("cannot stream: \{error}")
   }
@@ -189,7 +184,7 @@ test "the stream and the buffer agree" {
 test "a source that gives a byte at a time is read the same" {
   let plain = Bytes::make(@stream.chunk + 100, 0x7E)
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let file = @moonseal.seal(recipients, plain, entropy=pool(128, 8)) catch {
+  let file = @moonseal.seal(recipients, plain, random=pool(128, 8)) catch {
     _ => abort("no")
   }
   let out = @moonseal.BytesSink::new()
@@ -227,7 +222,7 @@ impl @moonseal.Source for Trickle with fn read(self, limit~) {
 test "an armored file round trips, in memory and in a stream" {
   let plain = Bytes::make(100, 0x2B)
   let recipients : Array[&@spec.Recipient] = [alice().public()]
-  let text = @moonseal.seal_armored(recipients, plain, entropy=pool(128, 9)) catch {
+  let text = @moonseal.seal_armored(recipients, plain, random=pool(128, 9)) catch {
     error => fail("cannot seal: \{error}")
   }
   let identities : Array[&@spec.Identity] = [alice()]
@@ -238,7 +233,7 @@ test "an armored file round trips, in memory and in a stream" {
     sink,
     recipients,
     @moonseal.BytesSource::new(plain),
-    entropy=pool(128, 9),
+    random=pool(128, 9),
   ) catch {
     error => fail("cannot stream armor: \{error}")
   }
@@ -267,9 +262,9 @@ test "an armored file round trips, in memory and in a stream" {
 struct Echo {}
 
 ///|
-impl @spec.Recipient for Echo with fn wrap(self, file_key~, entropy~) {
+impl @spec.Recipient for Echo with fn wrap(self, file_key~, random~) {
   ignore(self)
-  ignore(entropy)
+  ignore(random)
   @spec.Stanza::new(kind="example.com/echo", args=[], body=file_key.to_owned())
 }
 
@@ -286,7 +281,7 @@ impl @spec.Identity for Echo with fn unwrap(self, stanza~) {
 test "a recipient type of one's own plugs in" {
   let echo = Echo::{ }
   let recipients : Array[&@spec.Recipient] = [echo, alice().public()]
-  let file = @moonseal.seal(recipients, b"hello", entropy=pool(128, 10)) catch {
+  let file = @moonseal.seal(recipients, b"hello", random=pool(128, 10)) catch {
     error => fail("cannot seal: \{error}")
   }
   // The type we wrote opens it.

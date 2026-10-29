@@ -15,10 +15,11 @@ import {
   "moonbitlang/core/encoding/hex",
   "moonbitlang/core/encoding/utf8",
   "moonbitstack/moonseal",
-  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonbase/base64",
   "moonbitstack/moonseal/scrypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/x25519",
   "moonbitstack/mooncrypt/cipher/chacha20",
   "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/moonrand",
 } for "test"

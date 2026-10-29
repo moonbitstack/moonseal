@@ -9,16 +9,18 @@ pub fn seal_stream(
   sink : &Sink,
   recipients : Array[&@spec.Recipient],
   source : &Source,
-  entropy~ : @spec.Entropy,
+  random~ : &@moonrand.Source,
 ) -> Unit raise @spec.Refused {
-  let file_key = entropy.take(len=file_key_size)
+  let file_key = @spec.draw(random, file_key_size)
   let stanzas = Array(capacity=recipients.length())
   for recipient in recipients {
-    stanzas.push(recipient.wrap(file_key~, entropy~))
+    stanzas.push(recipient.wrap(file_key~, random~))
   }
+  // Drawn before anything reaches the sink, so a failing source leaves it
+  // empty rather than holding a header with no payload.
+  let nonce = @spec.draw(random, @stream.nonce)
   let head = @header.Header::new(stanzas)
   sink.write(bytes=head.encode(file_key~))
-  let nonce = entropy.take(len=@stream.nonce)
   sink.write(bytes=nonce)
   let sealer = @stream.Sealer::new(key=@stream.payload_key(file_key~, nonce~))
   let reader = Reader::new(source)
@@ -48,10 +50,10 @@ pub fn seal_stream_armored(
   sink : &Sink,
   recipients : Array[&@spec.Recipient],
   source : &Source,
-  entropy~ : @spec.Entropy,
+  random~ : &@moonrand.Source,
 ) -> Unit raise @spec.Refused {
   let armor = ArmoredSink::new(sink)
-  seal_stream(armor, recipients, source, entropy~)
+  seal_stream(armor, recipients, source, random~)
   armor.finish()
 }
 

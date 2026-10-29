@@ -18,13 +18,14 @@
 // Not here: where the passphrase comes from, and whether it is any good. Both are
 // the caller's business, and the second is why the work factor is adjustable.
 import {
-  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonbase/base64",
   "moonbitstack/moonseal/internal/crypt",
-  "moonbitstack/moonseal/internal/kdf",
+  "moonbitstack/mooncrypt/kdf/scrypt" @kdf,
   "moonbitstack/moonseal/spec",
   "moonbitlang/core/encoding/utf8",
 }
 
 import {
-  "moonbitstack/moonseal/internal/base64",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonrand",
 } for "test"

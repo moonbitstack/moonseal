@@ -10,7 +10,11 @@ pub let default_log_n : Int32 = 18
 /// The largest work factor a reader will accept. Four gibibytes of scratch
 /// space is the point past which a file stops being something to open and starts
 /// being something to defend against.
-pub let max_log_n : Int32 = @kdf.max_log_n
+pub let max_log_n : Int32 = limit
+
+///|
+/// The same number, under a name `Identity::new`'s argument does not shadow.
+let limit : Int32 = 22
 
 ///|
 /// What an scrypt stanza calls itself, and the prefix the salt is extended with.
@@ -58,9 +62,9 @@ pub fn Recipient::log_n(self : Recipient) -> Int32 {
 pub extend Recipient with @spec.Recipient::{wrap}
 
 ///|
-pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, entropy~) {
-  let salt = entropy.take(len=salt_size)
-  let stanza_salt = @base64.encode(salt)
+pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, random~) {
+  let salt = @spec.draw(random, salt_size)
+  let stanza_salt = @base64.encode(salt, padding=false)
   let key = stretch(self.passphrase, salt, self.log_n)
   @spec.Stanza::new(
     kind~,
@@ -82,7 +86,7 @@ pub struct Identity {
 pub fn Identity::new(passphrase : StringView, max_log_n? : Int32) -> Self {
   let ceiling = match max_log_n {
     Some(log_n) => log_n
-    None => @kdf.max_log_n
+    None => limit
   }
   check_log_n(ceiling)
   { passphrase: @utf8.encode(passphrase), ceiling, }
@@ -104,7 +108,7 @@ pub impl @spec.Identity for Identity with fn unwrap(self, stanza~) {
   guard stanza.body.length() == body_size else {
     raise @spec.Refused::Stanza(want="a 32-byte body")
   }
-  let salt = @base64.decode(stanza.args[0]) catch {
+  let salt = @base64.decode(stanza.args[0], padding=false, strict=true) catch {
     _ => raise @spec.Refused::Stanza(want="a base64 salt")
   }
   guard salt.length() == salt_size else {
@@ -135,7 +139,7 @@ fn work_factor(
       raise @spec.Refused::Stanza(want="a work factor in decimal digits")
     }
     value = value * 10 + (unit - 48).to_int()
-    if value > @kdf.max_log_n {
+    if value > limit {
       raise @spec.Refused::Stanza(want="a work factor of at most 22")
     }
   }
@@ -151,15 +155,16 @@ fn work_factor(
 ///|
 /// The scrypt key for a saltextended with this format's prefix.
 fn stretch(passphrase : BytesView, salt : BytesView, log_n : Int32) -> Bytes {
-  @kdf.key(passphrase, context.add(salt.to_owned()), log_n~, r=8, p=1, len=32)
+  let params = @kdf.Params::new(n=1 << log_n, r=8, p=1)
+  @kdf.key(passphrase, context.add(salt.to_owned()), params~, len=32)
 }
 
 ///|
 /// A work factor outside the range every implementation agrees on is a bug in
 /// the caller rather than a condition to report, so it stops here.
 fn check_log_n(log_n : Int32) -> Unit {
-  if log_n < 1 || log_n > @kdf.max_log_n {
-    abort("scrypt: a work factor of 1 to \{@kdf.max_log_n}, not \{log_n}")
+  if log_n < 1 || log_n > max_log_n {
+    abort("scrypt: a work factor of 1 to \{max_log_n}, not \{log_n}")
   }
 }
 

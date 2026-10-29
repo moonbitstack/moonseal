@@ -44,11 +44,13 @@ test "interop: our x25519 file is the reference file" {
   let written = @moonseal.seal(
     [identity.public()],
     b"age",
-    entropy=@spec.Entropy::new(test_entropy(64)),
+    random=@moonrand.Replay::new(test_entropy(64)),
   ) catch {
     error => fail("seal refused: \{error}")
   }
-  let published = @base64.decode_padded(case.data) catch { _ => abort("no") }
+  let published = @base64.decode(case.data, padding=true, strict=true) catch {
+    _ => abort("no")
+  }
   assert_eq(written, published)
 }
 
@@ -60,11 +62,13 @@ test "interop: our scrypt file is the reference file" {
   let written = @moonseal.seal(
     [@scrypt.Recipient::new("password", log_n=10)],
     b"age",
-    entropy=@spec.Entropy::new(test_entropy(64)),
+    random=@moonrand.Replay::new(test_entropy(64)),
   ) catch {
     error => fail("seal refused: \{error}")
   }
-  let published = @base64.decode_padded(case.data) catch { _ => abort("no") }
+  let published = @base64.decode(case.data, padding=true, strict=true) catch {
+    _ => abort("no")
+  }
   assert_eq(written, published)
 }
 
@@ -73,7 +77,9 @@ test "interop: our scrypt file is the reference file" {
 /// which is the other direction of the same statement.
 test "interop: the file we write opens to the vector's bytes" {
   let case = vector("x25519")
-  let published = @base64.decode_padded(case.data) catch { _ => abort("no") }
+  let published = @base64.decode(case.data, padding=true, strict=true) catch {
+    _ => abort("no")
+  }
   let identities : Array[&@spec.Identity] = [
     @x25519.Identity::of(case.identities[0]) catch {
       _ => abort("the vector's identity does not parse")
