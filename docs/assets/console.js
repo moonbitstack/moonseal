@@ -2,10 +2,7 @@
 // moonseal built to JavaScript (engine/moonseal.js, written by the docs
 // workflow), so the files it prints are age files.
 
-const root = document.documentElement;
-const syncTop = () => root.classList.toggle("at-top", window.scrollY <= 0);
-window.addEventListener("scroll", syncTop, { passive: true });
-syncTop();
+import "./scrollbar.js";
 
 // The API panel's package list stays just under the header, whatever height
 // the header wraps to.

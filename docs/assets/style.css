@@ -82,14 +82,13 @@ body::after{
 *::-webkit-scrollbar-corner{background:#160e07;}
 @supports not selector(::-webkit-scrollbar){
   *{scrollbar-width:thin; scrollbar-color:#9b7836 #160e07;}
-  html.at-top{scrollbar-color:transparent #1c130b;}
+  html:not(.scrolling){scrollbar-color:transparent #1c130b;}
 }
 
-/* when the page is at the very top (top==0) hide the scrollbar rod, and let
-   the gutter show the SAME fixed wood as the page so it blends seamlessly
-   (no flat brown bar, no white edge). */
-html.at-top *::-webkit-scrollbar-thumb{background:transparent; box-shadow:none;}
-html.at-top *::-webkit-scrollbar-track{
+/* The page's rod shows while the page moves or under the pointer and hides a
+   moment after; meanwhile its groove shows the same wood as the desk. */
+html:not(.scrolling)::-webkit-scrollbar-thumb{background:transparent; box-shadow:none;}
+html:not(.scrolling)::-webkit-scrollbar-track{
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.42' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.22 0 0 0 0 0.14 0 0 0 0 0.07 0.7 0 0 0 -0.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
     linear-gradient(180deg, #1c130b, #120b05);
