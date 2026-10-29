@@ -61,3 +61,9 @@ jobs:
       - name: interfaces are up to date
         run: |
           moon info --target all && git diff --exit-code
+
+      - name: the API panel matches the interfaces
+        if: runner.os == 'Linux'
+        run: |
+          python3 scripts/gen_api.py
+          git diff --exit-code docs/index.html

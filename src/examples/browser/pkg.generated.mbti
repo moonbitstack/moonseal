@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/examples/browser"
+
+// Values
+pub fn inspect(String) -> String
+
+pub fn keygen() -> String
+
+pub fn open_passphrase(String, String) -> String
+
+pub fn open_with(String, String) -> String
+
+pub fn seal_passphrase(String, String, Int32) -> String
+
+pub fn seal_to(String, String) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

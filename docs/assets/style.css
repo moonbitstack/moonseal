@@ -1,0 +1,226 @@
+:root{
+  /* wood: rosewood / walnut, coffee-dark */
+  --wood-0:#120b05; --wood-1:#1a1109; --wood-2:#241810; --wood-3:#2e2014; --wood-4:#3b2917;
+  --crema:#f1e7d2; --parch:#e9dcc2; --dim:#a8987c;
+  --line:rgba(200,163,90,.22); --line-soft:rgba(200,163,90,.10);
+  --brass:#c8a35a; --brass-2:#e3c483; --brass-dim:rgba(200,163,90,.38);
+  --sage:#9cbf8e; --rust:#df7c4e; --teal:#79b0a6;
+  --carve-hi:rgba(255,238,205,.10);   /* light catching a carved edge */
+  --carve-lo:rgba(0,0,0,.55);          /* shadow inside a carved groove */
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+}
+.engrave{ color:var(--crema); text-shadow:0 -1px 0 rgba(0,0,0,.55), 0 1px 0 var(--carve-hi); }
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+::selection{background:var(--brass); color:#1a1109;}
+:focus-visible{outline:2px solid var(--brass); outline-offset:2px; border-radius:2px;}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}}
+nav.top a, .api-nav a, .quick button, .chip, .fn{transition:color .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;}
+.chip:hover{transform:translateY(-2px);}
+.quick button:active{transform:translateY(1px);}
+html,button,input,textarea,select{font-variant-ligatures:no-contextual;}
+body{
+  margin:0; color:var(--crema); font-family:var(--sans); line-height:1.66;
+  background:
+    /* light from the upper-left, shadow to the lower-right */
+    radial-gradient(135% 95% at 6% -6%, rgba(255,238,210,.13), transparent 46%),
+    radial-gradient(120% 100% at 106% 106%, rgba(0,0,0,.52), transparent 56%),
+    /* a few knots, where the grain swirls */
+    radial-gradient(62px 92px at 21% 37%, rgba(0,0,0,.20), rgba(0,0,0,0) 70%),
+    radial-gradient(48px 72px at 79% 71%, rgba(0,0,0,.16), rgba(0,0,0,0) 70%),
+    radial-gradient(40px 62px at 58% 17%, rgba(255,232,205,.045), rgba(255,232,205,0) 70%),
+    /* plank seams every ~232px */
+    repeating-linear-gradient(90deg, transparent 0 230px, rgba(0,0,0,.22) 230px 232px, rgba(255,234,206,.03) 232px 234px),
+    /* fine, stretched wood grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.42' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.22 0 0 0 0 0.14 0 0 0 0 0.07 0.7 0 0 0 -0.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
+    /* base walnut */
+    linear-gradient(180deg, #1c130b, #120b05);
+  background-attachment:fixed;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.035; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* 整页木框边 — a fixed wooden bezel framing the whole viewport.
+   Sits BEHIND the sticky header (z-index < header) so the top line is
+   tucked under the title bar instead of crossing its logo / GitHub link. */
+body::after{
+  content:""; position:fixed; inset:15px; z-index:20; pointer-events:none;
+  border:1px solid var(--brass-dim);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.6),
+    inset 0 0 16px rgba(200,163,90,.06),
+    0 0 0 1px rgba(0,0,0,.35);
+}
+/* scrollbar — an antique-brass rod in a dark-wood groove.
+   Track is OPAQUE so the page frame behind it never bleeds through as a
+   stray horizontal line. (Firefox honors only scrollbar-color/width, so the
+   tone is kept muted/antique rather than a bright saturated gold.) */
+*::-webkit-scrollbar{width:12px;height:12px;}
+*::-webkit-scrollbar-track{
+  background:#160e07;
+  background-image:linear-gradient(90deg, rgba(0,0,0,.5), rgba(0,0,0,.16) 50%, rgba(0,0,0,.5));
+}
+*::-webkit-scrollbar-thumb{
+  border-radius:6px; border:2px solid #120b05;
+  background:linear-gradient(180deg, #c9a35f 0%, #a87f3c 48%, #6f5226 100%);
+  background-clip:padding-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255,235,200,.45),
+    inset 0 -1px 0 rgba(0,0,0,.5);
+}
+*::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg, #dcb978 0%, #b98e44 48%, #7d5d2c 100%);
+  background-clip:padding-box;
+}
+*::-webkit-scrollbar-thumb:active{
+  background:linear-gradient(180deg, #a87f3c 0%, #8a6a2f 50%, #5e451f 100%);
+  background-clip:padding-box;
+}
+*::-webkit-scrollbar-corner{background:#160e07;}
+@supports not selector(::-webkit-scrollbar){
+  *{scrollbar-width:thin; scrollbar-color:#9b7836 #160e07;}
+  html.at-top{scrollbar-color:transparent #1c130b;}
+}
+
+/* when the page is at the very top (top==0) hide the scrollbar rod, and let
+   the gutter show the SAME fixed wood as the page so it blends seamlessly
+   (no flat brown bar, no white edge). */
+html.at-top *::-webkit-scrollbar-thumb{background:transparent; box-shadow:none;}
+html.at-top *::-webkit-scrollbar-track{
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.42' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.22 0 0 0 0 0.14 0 0 0 0 0.07 0.7 0 0 0 -0.32'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #1c130b, #120b05);
+  background-size:420px 420px, 100% 100%;
+  background-attachment:fixed;
+}
+
+a{color:var(--brass);text-decoration:none;}
+a:hover{color:var(--brass-2);}
+
+header.bar{
+  position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:20px;
+  padding:13px 30px; border-bottom:1px solid var(--brass-dim);
+  background:linear-gradient(180deg, rgba(26,17,9,.93), rgba(18,11,5,.78));
+  backdrop-filter:blur(10px);
+  box-shadow:inset 0 -1px 0 var(--carve-lo), 0 1px 0 var(--carve-hi);
+}
+.wm{font-family:var(--serif); font-size:21px; font-weight:600; display:flex; align-items:center; gap:10px; color:var(--crema);}
+.wm svg{width:26px;height:26px; filter:drop-shadow(0 1px 0 rgba(0,0,0,.4));}
+nav.top{margin-left:auto; display:flex; gap:20px; font-size:14px;}
+nav.top a{color:var(--dim);} nav.top a:hover{color:var(--brass);text-decoration:none;}
+.gh{display:inline-flex;align-items:center;gap:7px;}
+.gh svg{width:17px;height:17px;}
+
+.wrap{max-width:1040px; margin:0 auto; padding:0 30px;}
+
+/* hero — the homepage card, with a carved collector's medallion */
+.hero{display:flex; gap:36px; align-items:flex-start; padding:128px 0 30px; position:relative;}
+.hero-text{flex:1; min-width:0;}
+.medallion{flex:0 0 138px; display:flex; flex-direction:column; align-items:center; gap:11px; margin-top:18px;}
+.medallion svg{width:138px; height:138px; filter:drop-shadow(0 18px 30px rgba(0,0,0,.5));}
+.medallion-cap{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); text-align:center;}
+.kicker{font-family:var(--mono); font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--brass);}
+h1.lede{font-family:var(--serif); font-weight:600; font-size:clamp(32px,5.4vw,56px); line-height:1.08; margin:16px 0 14px; text-shadow:0 -1px 0 rgba(0,0,0,.55), 0 1px 0 var(--carve-hi);}
+h1.lede em{font-style:italic; color:var(--brass-2);}
+.tagline{font-size:19px; color:var(--dim); max-width:60ch;}
+.stats{display:flex; flex-wrap:wrap; gap:14px; margin-top:30px;}
+.chip{
+  border:1px solid var(--wood-4); border-left:3px solid var(--brass); border-radius:0 12px 12px 0;
+  background:linear-gradient(180deg, var(--wood-3), var(--wood-2));
+  padding:14px 20px; min-width:150px;
+  box-shadow:inset 0 0 0 1px var(--brass-dim), inset 1px 1px 0 var(--carve-hi), inset -1px -1px 0 var(--carve-lo);
+}
+.chip .n{font-family:var(--mono); font-size:25px; font-weight:600; color:var(--crema);}
+.chip .l{font-size:12px; color:var(--dim); letter-spacing:.05em; margin-top:2px;}
+
+.section-title{font-family:var(--serif); font-size:30px; font-weight:600; margin:0 0 6px; color:var(--crema); text-shadow:0 -1px 0 rgba(0,0,0,.55), 0 1px 0 var(--carve-hi);}
+.section-title::after{
+  content:""; display:block; width:66px; height:4px; margin-top:12px;
+  background:
+    linear-gradient(180deg, var(--carve-lo), transparent) top/100% 1px no-repeat,
+    linear-gradient(90deg, var(--brass), var(--brass-2) 55%, transparent) bottom/100% 2px no-repeat;
+  box-shadow:0 1px 0 var(--carve-hi), 0 0 8px rgba(200,163,90,.35);
+}
+.section-sub{color:var(--dim); margin:0 0 22px;}
+
+/* the console — A, and the guide: a carved wooden panel */
+.console{
+  position:relative; border:1px solid var(--wood-4); border-radius:0; overflow:hidden;
+  background:linear-gradient(180deg, var(--wood-3), var(--wood-2));
+  box-shadow:0 0 0 1px rgba(0,0,0,.45), inset 0 0 0 1px var(--brass-dim), inset 1px 1px 0 var(--carve-hi), inset -1px -1px 0 var(--carve-lo), 0 30px 80px -42px #000;
+}
+.bar-t{display:flex; align-items:center; gap:8px; padding:11px 14px; background:linear-gradient(180deg,#160e07,#0f0a05); border-bottom:1px solid var(--brass-dim); box-shadow:inset 0 -1px 0 var(--carve-lo);}
+.dot{width:11px;height:11px;border-radius:50%;}
+.bar-t .t{margin-left:9px; color:var(--dim); font-size:12px; font-family:var(--mono);}
+.out{padding:18px; font-family:var(--mono); font-size:13.5px; white-space:pre-wrap; overflow-wrap:anywhere; min-height:250px; max-height:min(560px, 70vh); overflow:auto;
+  background-color:#0e0904;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.62 0 0 0 0 0.50 0 0 0 0 0.32 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  background-blend-mode:soft-light;
+}
+.out .file{white-space:pre; overflow-wrap:normal;}
+.out .pr{color:var(--brass);} .out .ok{color:var(--sage);} .out .er{color:var(--rust);}
+.out .dm{color:var(--dim);} .out .am{color:var(--brass-2);} .out .cm{color:var(--teal);} .out .cr{color:var(--crema);}
+form.tf{display:flex; align-items:center; gap:9px; padding:12px 14px; border-top:1px solid var(--line); background:#0f0a05;}
+form.tf .ps{color:var(--rust); font-family:var(--mono);}
+#cmd{flex:1; background:transparent; border:none; outline:none; color:var(--crema); font-family:var(--mono); font-size:14px;}
+.quick{display:flex; flex-wrap:wrap; gap:8px; padding:0 14px 15px; background:#0f0a05;}
+.quick button{
+  background:linear-gradient(180deg,var(--wood-3),var(--wood-2)); border:1px solid var(--wood-4);
+  color:var(--dim); cursor:pointer; font-family:var(--mono); font-size:12px; padding:7px 12px; border-radius:8px;
+  box-shadow:inset 0 0 0 1px var(--brass-dim), inset 1px 1px 0 var(--carve-hi);
+}
+.quick button:hover{border-color:var(--brass); color:var(--brass-2); box-shadow:inset 0 0 0 1px var(--brass);}
+.hint{font-family:var(--mono); font-size:12.5px; color:var(--dim); margin-top:11px;}
+
+/* API — refined man pages, in a carved panel */
+.api-grid{position:relative; display:grid; grid-template-columns:230px 1fr; gap:0; border:1px solid var(--wood-4); border-radius:0; overflow:clip; background:linear-gradient(180deg,var(--wood-3),var(--wood-2)); box-shadow:0 0 0 1px rgba(0,0,0,.45), inset 0 0 0 1px var(--brass-dim), inset 1px 1px 0 var(--carve-hi), inset -1px -1px 0 var(--carve-lo), 0 30px 80px -42px #000;}
+.api-nav{padding:22px 18px; border-right:1px solid var(--brass-dim); background:rgba(0,0,0,.22); box-shadow:inset -1px 0 0 var(--carve-lo);}
+.api-nav-inner{position:sticky; top:75px; max-height:calc(100vh - 91px); overflow:auto;}
+.api-nav .h{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); margin:14px 0 8px;}
+.api-nav .h:first-child{margin-top:0;}
+.api-nav a{display:block; color:var(--dim); font-size:13.5px; padding:3px 0;}
+.api-nav a:hover{color:var(--brass-2); text-decoration:none;}
+.api-body{padding:8px 26px 30px; min-width:0;}
+.pkg{margin-top:26px;}
+.pkg:first-child{margin-top:14px;}
+.pkg h3{font-family:var(--serif); font-size:23px; margin:0 0 4px; color:var(--crema); border-bottom:1px solid var(--brass-dim); padding-bottom:7px; text-shadow:0 -1px 0 rgba(0,0,0,.5), 0 1px 0 var(--carve-hi);}
+.pkg .desc{color:var(--dim); font-size:14px; margin:0 0 14px;}
+.fn{border-left:2px solid var(--line-soft); padding:10px 0 10px 16px; margin:0 0 6px;}
+.fn:hover{border-left-color:var(--brass); background:linear-gradient(90deg, rgba(200,163,90,.06), transparent 60%);}
+.fn .sig{font-family:var(--mono); font-size:13px; color:var(--brass-2); white-space:pre-wrap; overflow-wrap:anywhere;}
+.fn .sig .r{color:var(--teal);}
+.fn .d{font-size:13.5px; color:var(--dim); margin-top:4px;}
+.fn .d code{font-family:var(--mono); font-size:12.5px; color:var(--parch);}
+
+footer{border-top:1px solid var(--line); margin-top:64px; padding:26px 30px; color:var(--dim); font-size:13px; display:flex; flex-wrap:wrap; gap:16px; align-items:center;}
+
+/* 镂空花格 — a carved wooden screen divider with hollowed diamonds */
+.lattice-div{
+  height:30px; margin:48px 0 10px; position:relative; background-color:var(--wood-0);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='30' viewBox='0 0 28 30'%3E%3Cg fill='none' stroke='%233b2917' stroke-width='2'%3E%3Cpath d='M14 0 L28 15 L14 30 L0 15 Z'/%3E%3C/g%3E%3Cg fill='none' stroke='%23c8a35a' stroke-width='0.6' opacity='0.6'%3E%3Cpath d='M14 0 L28 15 L14 30 L0 15 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:repeat-x; background-position:center;
+  border-top:1px solid var(--brass-dim); border-bottom:1px solid var(--brass-dim);
+  box-shadow:inset 0 1px 0 var(--carve-hi), inset 0 -1px 0 var(--carve-lo);
+}
+/* 铜包角 — brass-trimmed wood corner brackets */
+.corner{position:absolute; width:44px; height:44px; pointer-events:none; z-index:3; background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M0 0 H26 V7 H7 V26 H0 Z' fill='%233b2917'/%3E%3Cpath d='M0 0 H26' stroke='%23e3c483' stroke-width='1.5'/%3E%3Cpath d='M0 0 V26' stroke='%23e3c483' stroke-width='1.5'/%3E%3Cpath d='M2 2 H23' stroke='rgba(255,242,214,.55)' stroke-width='0.6'/%3E%3Cpath d='M2 2 V23' stroke='rgba(255,242,214,.55)' stroke-width='0.6'/%3E%3Ccircle cx='8' cy='8' r='2' fill='%23e3c483'/%3E%3Ccircle cx='7.2' cy='7.2' r='0.8' fill='rgba(255,255,255,.75)'/%3E%3C/svg%3E");}
+.corner.tl{top:0; left:0;}
+.corner.tr{top:0; right:0; transform:scaleX(-1);}
+.corner.bl{bottom:0; left:0; transform:scaleY(-1);}
+.corner.br{bottom:0; right:0; transform:scale(-1,-1);}
+
+@media (width <= 720px){
+  nav.top{gap:16px;}
+  nav.top a.gh{font-size:0; gap:0;}
+  .hero{display:block; padding:64px 0 20px;}
+  .medallion{display:none;}
+  .api-grid{grid-template-columns:1fr;}
+  .api-nav{border-right:none; border-bottom:1px solid var(--brass-dim);}
+  .api-nav-inner{position:static; max-height:none; overflow:visible; display:flex; flex-wrap:wrap; gap:6px 16px;}
+  .api-nav-inner .h{width:100%;}
+  .api-nav .h{width:100%;}
+}

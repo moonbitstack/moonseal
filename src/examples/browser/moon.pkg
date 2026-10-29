@@ -1,0 +1,29 @@
+// The site's engine: moonseal built to JavaScript for the console on the home
+// page. Strings in, JSON out; every file it prints is an age file this library
+// sealed.
+import {
+  "moonbitlang/core/encoding/utf8",
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/armor",
+  "moonbitstack/moonseal/header",
+  "moonbitstack/moonseal/scrypt",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonrand/system",
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "keygen",
+        "seal_passphrase",
+        "seal_to",
+        "open_passphrase",
+        "open_with",
+        "inspect",
+      ],
+      "format": "esm",
+    },
+  },
+)

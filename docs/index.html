@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>moonseal — seal a file for several people</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a120b'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23d9a441'/%3E%3Cpath d='M10 13h12v6H10z' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3Cpath d='M10 13l6 5 6-5' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3C/svg%3E"/>
+<link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wm">
+    <svg viewBox="0 0 32 32">
+      <defs><radialGradient id="lg" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#4a3320"/><stop offset="1" stop-color="#231710"/></radialGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="url(#lg)" stroke="#c8a35a" stroke-width="1.1"/>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1" transform="translate(0,1)"/>
+      <path d="M9 13h14v6H9z" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+      <path d="M9 13l7 5 7-5" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+    </svg>
+    moonseal
+  </div>
+  <nav class="top">
+    <a href="#home">Home</a>
+    <a href="#console">Console</a>
+    <a href="#api">API</a>
+    <a class="gh" href="https://github.com/moonbitstack/moonseal" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.49-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.81.06 1.23.83 1.23.83.72 1.23 1.88.88 2.34.67.07-.52.28-.88.51-1.08-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.52.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <!-- HOME: hero card doubles as the homepage -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <div class="kicker">age-encryption.org/v1 · MoonBit</div>
+      <h1 class="lede">Seal a file for several people at once;<br><em>any one of them opens it.</em></h1>
+      <p class="tagline">A sealed file is a header of recipient stanzas over a streaming payload. No key ring, no trust model, no key server — a format, not a vault.</p>
+      <div class="stats">
+        <div class="chip"><div class="n">v1</div><div class="l">specification</div></div>
+        <div class="chip"><div class="n">2</div><div class="l">recipient types</div></div>
+        <div class="chip"><div class="n">64 KiB</div><div class="l">payload chunk</div></div>
+        <div class="chip"><div class="n" style="font-size:40px !important; line-height:1 !important;">∞</div><div class="l">readers, one file</div></div>
+      </div>
+    </div>
+    <div class="medallion" aria-hidden="true">
+      <svg viewBox="0 0 120 120">
+          <defs>
+            <radialGradient id="mg" cx="36%" cy="30%" r="80%"><stop offset="0" stop-color="#4a3320"/><stop offset="1" stop-color="#1d130b"/></radialGradient>
+            <radialGradient id="shine" cx="33%" cy="26%" r="62%"><stop offset="0" stop-color="rgba(255,242,214,.42)"/><stop offset=".5" stop-color="rgba(255,242,214,0)"/></radialGradient>
+          </defs>
+          <circle cx="60" cy="60" r="56" fill="url(#mg)" stroke="#c8a35a" stroke-width="2"/>
+          <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="1.2" transform="translate(0,1.5)"/>
+          <circle cx="60" cy="60" r="55" fill="url(#shine)"/>
+          <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(200,163,90,.4)" stroke-width="1"/>
+          <g transform="translate(60,60)">
+            <rect x="-24" y="-16" width="48" height="32" rx="2" fill="none" stroke="#e3c483" stroke-width="2"/>
+            <path d="M-24 -16 L0 2 L24 -16" fill="none" stroke="#e3c483" stroke-width="2"/>
+          </g>
+          <circle cx="60" cy="9" r="2" fill="#e3c483"/><circle cx="60" cy="111" r="2" fill="#e3c483"/>
+          <circle cx="9" cy="60" r="2" fill="#e3c483"/><circle cx="111" cy="60" r="2" fill="#e3c483"/>
+        </svg>
+        <span class="medallion-cap">age v1 · sealed</span>
+      </div>
+  </section>
+
+  <!-- 镂空花格 divider -->
+  <div class="lattice-div" aria-hidden="true"></div>
+
+  <!-- CONSOLE: A is the page AND the guide (N-in-one) -->
+  <h2 class="section-title" id="console">The console — read by running</h2>
+  <p class="section-sub">This is the homepage, the guide, and the tour, in one. Type a command; moonseal itself answers, built to JavaScript: every file it prints is an age file, and opens with any other age implementation.</p>
+
+  <div class="console">
+    <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+    <div class="bar-t">
+      <span class="dot" style="background:var(--rust)"></span>
+      <span class="dot" style="background:var(--brass)"></span>
+      <span class="dot" style="background:var(--sage)"></span>
+      <span class="t">moonseal — type <b style="color:var(--brass-2)">help</b> to begin</span>
+    </div>
+    <div class="out" id="out"></div>
+    <form class="tf" id="cform" autocomplete="off">
+      <span class="ps">›</span>
+      <input id="cmd" placeholder='seal --pass "hunter2" "the quick brown fox"' spellcheck="false"/>
+    </form>
+    <div class="quick" id="quick">
+      <button data-c='help'>help</button>
+      <button data-c='install'>install</button>
+      <button data-c='keygen'>keygen</button>
+      <button data-c='seal --pass "correct horse" "hello, sealed world"'>seal (passphrase)</button>
+      <button data-c='open --pass "correct horse"'>open (passphrase)</button>
+      <button data-c='inspect'>inspect</button>
+      <button data-c='recipients'>recipients</button>
+      <button data-c='armor'>armor</button>
+      <button data-c='stream'>stream</button>
+      <button data-c='custom'>custom recipient</button>
+      <button data-c='api'>api</button>
+    </div>
+  </div>
+  <p class="hint">Commands: help · install · keygen · seal --pass "PW" "MSG" [--work N] · seal --to age1… "MSG" · seal --me "MSG" · open --pass "PW" · open --with AGE-SECRET-KEY-1… · open --me · inspect · recipients · armor · stream · custom · api · clear</p>
+
+  <!-- 镂空花格 divider -->
+  <div class="lattice-div" aria-hidden="true"></div>
+
+  <!-- API: complete reference on the same page -->
+  <h2 class="section-title" id="api">API reference</h2>
+  <p class="section-sub">Every public type and function, grouped by package. Names match the library exactly.</p>
+
+  <div class="api-grid">
+    <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+    <nav class="api-nav">
+     <div class="api-nav-inner">
+      <div class="h">Packages</div>
+<!-- generated:nav -->
+      <a href="#pkg-moonseal">moonseal</a>
+      <a href="#pkg-spec">spec</a>
+      <a href="#pkg-header">header</a>
+      <a href="#pkg-stream">stream</a>
+      <a href="#pkg-armor">armor</a>
+      <a href="#pkg-x25519">x25519</a>
+      <a href="#pkg-scrypt">scrypt</a>
+<!-- /generated:nav -->
+     </div>
+    </nav>
+
+    <div class="api-body">
+<!-- generated:api -->
+      <div class="pkg" id="pkg-moonseal">
+        <h3>moonseal</h3>
+        <p class="desc">Sealing a file for one or several readers, and opening it again.</p>
+        <div class="fn"><div class="sig">pub(open) trait Sink {
+  fn write(Self, bytes~ : BytesView) -&gt; Unit raise @spec.Refused
+}</div><div class="d">Where bytes go. It may be called with small pieces, and it is called in the order the file is written.</div></div>
+        <div class="fn"><div class="sig">pub(open) trait Source {
+  fn read(Self, limit~ : Int32) -&gt; Bytes raise @spec.Refused
+}</div><div class="d">Where bytes come from. A file, a socket, a buffer: anything that can hand over a run of bytes and say when it has no more.</div><div class="d"><code>read</code> may return fewer bytes than it was asked for; an empty answer means the end. The reader in this library asks for a chunk at a time and keeps asking until it has what it needs or the source is spent.</div></div>
+        <div class="fn"><div class="sig">pub struct BytesSink {
+  // private fields
+}</div><div class="d">A sink over a buffer, for the same reason.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::bytes(Self) -&gt; <span class="r">Bytes</span></div><div class="d">Everything written so far, as one byte string.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::write(Self, bytes~ : BytesView) -&gt; <span class="r">Unit raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct BytesSource {
+  // private fields
+}</div><div class="d">A source over bytes that are already in memory, which is what a caller with a file in a buffer wants, and what the tests use.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSource::new(BytesView) -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn BytesSource::read(Self, limit~ : Int32) -&gt; <span class="r">Bytes raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub fn drain(&amp;Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">The whole of a source, which is what a caller does when the input is small enough to hold and they would rather see it than stream it.</div></div>
+        <div class="fn"><div class="sig">pub fn open(Array[&amp;@spec.Identity], BytesView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open a file addressed to any one of <code>identities</code>.</div><div class="d">The header is checked before the payload is touched: a stanza is opened to recover the file key, the MAC over the header is verified with it, and only then does a chunk get decrypted. A header that does not verify means somebody edited the list of who can read the file, and no part of the payload is worth looking at after that.</div></div>
+        <div class="fn"><div class="sig">pub fn open_armored(Array[&amp;@spec.Identity], StringView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open an armored block.</div></div>
+        <div class="fn"><div class="sig">pub fn open_stream(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open a file from a source, writing the plaintext to a sink as it is authenticated. Nothing is written until the header has verified.</div></div>
+        <div class="fn"><div class="sig">pub fn open_stream_armored(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open an armored text block from a source.</div></div>
+        <div class="fn"><div class="sig">pub fn seal(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Seal <code>plain</code> for <code>recipients</code>, and give back the file.</div><div class="d">The file key, every stanza's ephemeral material and the payload nonce come out of <code>random</code>, in that order: <code>@system.source</code> from <code>moonrand/system</code> in a program, a <code>Replay</code> of fixed bytes in a test that wants the same file twice. A source that fails is a refusal, and it arrives before the first byte is written.</div><div class="d">How much a file draws: sixteen bytes for the file key, then thirty-two for each X25519 recipient and sixteen for each scrypt recipient, then sixteen for the payload nonce.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_armored(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">String raise @spec.Refused</span></div><div class="d">The same as <code>seal</code>, written out as an armored text block.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">The same file, written a piece at a time: nothing larger than one chunk is ever held, which is what makes a file bigger than memory something this library can seal.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream_armored(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Seal to a sink, as an armored text block. The text is written in the same pieces the file is, so the whole of it never exists at once either.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-spec">
+        <h3>spec</h3>
+        <p class="desc">The contract the rest of this library is written against: the error type, the recipient stanza, and the two traits a recipient type implements.</p>
+        <div class="fn"><div class="sig">pub(open) trait Identity {
+  fn unwrap(Self, stanza~ : Stanza) -&gt; Bytes? raise Refused
+}</div><div class="d">A recipient type, from the decrypting side: given a stanza, either the file key or <code>None</code> for "not mine, try the next one".</div><div class="d">A stanza of a type this identity does not implement is <code>None</code>, and so is one that is well formed but sealed to another key. A stanza that claims to be this type and is malformed is a refusal, because at that point the file is broken rather than addressed to somebody else.</div></div>
+        <div class="fn"><div class="sig">pub(open) trait Recipient {
+  fn wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; Stanza raise Refused
+}</div><div class="d">A recipient type, from the encrypting side: it takes the file key and wraps it into a stanza only the matching identity can unwrap.</div><div class="d"><code>random</code> is where the ephemeral material comes from. It is passed rather than found so that the one source a caller chose serves every stanza of a file, and so that a <code>Replay</code> seals the same file twice.</div></div>
+        <div class="fn"><div class="sig">pub(all) struct Stanza {
+  kind : String
+  args : Array[String]
+  body : Bytes
+}</div><div class="d">One recipient stanza: the type, the arguments after it, and the body that carries the file key wrapped for whoever holds the matching secret.</div><div class="d">A recipient type is nothing more than a name, a list of arguments it defines the meaning of, and a body; the header carries them without understanding them, which is what lets a type this library has never heard of travel through it.</div></div>
+        <div class="fn"><div class="sig">pub fn Stanza::new(kind~ : String, args~ : Array[String], body~ : Bytes) -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub(all) suberror Refused {
+  Header(at~ : Int32, want~ : String)
+  Stanza(want~ : String)
+  Mac
+  NoMatch
+  Payload(at~ : Int32)
+  Armor(at~ : Int32, want~ : String)
+  Key(want~ : Int32, got~ : Int32)
+  Random(@moonrand.Unavailable)
+  Limit(want~ : Int32, got~ : Int32)
+} derive(Eq, @debug.Debug)</div><div class="d">Why this library would not do what it was asked.</div><div class="d">The variants are the places a file can stop being a file: the header does not say what the format says it says, a stanza of a known type does not either, the MAC over the header does not check out, no identity opened any stanza, a payload chunk did not authenticate, the text was not the armor it claimed to be, a key is not the size this format defines, the random source the caller handed in could not give what the file needs, or an input was longer than this library will read.</div><div class="d"><code>at</code> is an offset in bytes from the start of the input the call was given.</div></div>
+        <div class="fn"><div class="sig">pub fn draw(&amp;@moonrand.Source, Int32) -&gt; <span class="r">Bytes raise Refused</span></div><div class="d"><code>len</code> bytes from <code>random</code>, or the reason it had none as a refusal.</div><div class="d">A recipient type calls this for its ephemeral material, so that a failing source arrives as the one error type every call here raises.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-header">
+        <h3>header</h3>
+        <p class="desc">The header: the part of the file that says who can open it.</p>
+        <div class="fn"><div class="sig">pub struct Header {
+  // private fields
+}</div><div class="d">A header in the shape it is written in: the stanzas, the MAC that came with them, and the exact bytes the MAC covers.</div><div class="d">The bytes are kept rather than recomputed because the MAC is defined over the bytes on the wire. Re-rendering them would be right only for canonical input, and being wrong about which input is canonical is how a file that parsed yesterday stops opening today.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::decode(BytesView) -&gt; <span class="r">(Self, Int32) raise @spec.Refused</span></div><div class="d">Read a header from the front of <code>bytes</code>, and say how many bytes it took.</div><div class="d">The count matters because the payload begins immediately after the MAC's line feed with no separator: whoever reads a header has to know exactly where it stopped.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::encode(Self, file_key~ : BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The header as it appears in a file, MAC line and all, keyed from the file key.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::new(Array[@spec.Stanza]) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A header with no MAC yet, as a sender has it.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::stanzas(Self) -&gt; <span class="r">Array[@spec.Stanza]</span></div><div class="d">The stanzas, in the order they are written.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::verify(Self, file_key~ : BytesView) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Check that the MAC this header carries is the one its bytes deserve. Called before the payload is touched, because a header that does not verify is a header somebody edited.</div></div>
+        <div class="fn"><div class="sig">pub let limit : Int32</div><div class="d">How long a header this library will read before giving up.</div><div class="d">The format has no ceiling, and that is a way to make a reader allocate until it cannot: sixteen thousand stanzas of addressable text is one mebibyte, far past any file addressed to real people.</div></div>
+        <div class="fn"><div class="sig">pub let version : String</div><div class="d">The one version line this format has.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-stream">
+        <h3>stream</h3>
+        <p class="desc">The payload: one long stream cut into 64 KiB chunks, each authenticated on its own.</p>
+        <div class="fn"><div class="sig">pub struct Opener {
+  // private fields
+}</div><div class="d">A payload reader: holds the key, and checks that chunks arrive in order and that the last one says it is the last.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::chunk(Self, cipher~ : BytesView, last~ : Bool) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open one chunk, or refuse it. The refusal carries the offset of the chunk from the start of the payload.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::chunks(Self) -&gt; <span class="r">Int32</span></div><div class="d">How many chunks have been opened.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::done(Self) -&gt; <span class="r">Bool</span></div><div class="d">Whether the payload ended: a payload is only over once a chunk said it was the last one, so a reader that runs out of bytes first has been handed a truncated file.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::new(key~ : BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Sealer {
+  // private fields
+}</div><div class="d">A payload writer: holds the key, and remembers which chunk comes next.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::chunk(Self, plain~ : BytesView, last~ : Bool) -&gt; <span class="r">Bytes</span></div><div class="d">Seal one chunk. <code>last</code> marks the end of the payload; a payload of no bytes at all is still one chunk — an empty one — whose tag is the only thing standing between an empty file and a truncated one.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::chunks(Self) -&gt; <span class="r">Int32</span></div><div class="d">How many chunks have been sealed, which is how many the payload will hold.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::new(key~ : BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A sealer over a payload key of thirty-two bytes.</div></div>
+        <div class="fn"><div class="sig">pub let chunk : Int32</div><div class="d">How much plaintext one chunk holds.</div></div>
+        <div class="fn"><div class="sig">pub let nonce : Int32</div><div class="d">How many bytes of nonce precede the first chunk. It is drawn once per file, and the payload key is derived from it, which is what makes two files sealed under the same recipients differ from the first byte.</div></div>
+        <div class="fn"><div class="sig">pub let tag : Int32</div><div class="d">How many bytes a chunk grows by, which is the size of an authentication tag.</div></div>
+        <div class="fn"><div class="sig">pub fn payload_key(file_key~ : BytesView, nonce~ : BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The payload key: the file key, salted with the payload nonce.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-armor">
+        <h3>armor</h3>
+        <p class="desc">ASCII armor: the same file as text, for the places a binary file cannot go.</p>
+        <div class="fn"><div class="sig">pub struct Decoder {
+  // private fields
+}</div><div class="d">A block read a piece at a time.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::finish(Self) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">The end of the text: whatever was left of a last line without its line feed, and a check that the block was closed.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::push(Self, StringView) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Feed text. Complete lines are decoded as they arrive; what has been decoded so far is available from <code>take</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::take(Self) -&gt; <span class="r">Bytes</span></div><div class="d">What has been decoded so far, and clear it.</div></div>
+        <div class="fn"><div class="sig">pub struct Encoder {
+  // private fields
+}</div><div class="d">A block written a piece at a time, so that a file larger than memory can be armored.</div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::finish(Self) -&gt; <span class="r">String</span></div><div class="d">The rest of the block: the last, shorter line if there is one, and the line that ends it. An empty input writes no body line at all, which is a block that carries no bytes rather than a block that carries an empty line.</div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::write(Self, BytesView) -&gt; <span class="r">String</span></div><div class="d">Take some bytes and give back the lines that are now complete. Nothing comes back until at least 48 bytes have arrived, which is exactly one line.</div></div>
+        <div class="fn"><div class="sig">pub let label : String</div><div class="d">The label between the dashes, which is also the name this format is known by to anything that reads PEM blocks.</div></div>
+        <div class="fn"><div class="sig">pub fn decode(StringView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">A block back into bytes, or a refusal. See the package comment for what is allowed around the block and what is not.</div></div>
+        <div class="fn"><div class="sig">pub fn encode(BytesView) -&gt; <span class="r">String</span></div><div class="d">A block around <code>bytes</code>, as text. Every line ends in a line feed, including the last one, so that the result survives being concatenated.</div></div>
+        <div class="fn"><div class="sig">pub fn head() -&gt; <span class="r">String</span></div><div class="d">The line that opens a block, with its line feed.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-x25519">
+        <h3>x25519</h3>
+        <p class="desc">The recipient type everyone uses: a public key per reader.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>AGE-SECRET-KEY-1…</code>. Uppercase, which is how bech32 spells a secret so that it is hard to mistake for a public one.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonrand.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new secret key, drawn from <code>random</code>. A secret key is thirty-two random bytes and nothing else; X25519 clamps them when it uses them.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of secret key.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>AGE-SECRET-KEY-1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key, as the thing you seal to.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1…</code>. The case of the string carries no meaning: bech32 allows either, and the checksum is taken over the lowercase one.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a public key, a secret key and a share are. X25519 has no other size.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-scrypt">
+        <h3>scrypt</h3>
+        <p class="desc">The recipient type for a passphrase: no keys, no key exchange, just a lot of memory.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A passphrase, from the decrypting side.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(StringView, max_log_n? : Int32) -&gt; <span class="r">Self</span></div><div class="d">An identity for a passphrase, and the largest work factor it will agree to run. A file is allowed to ask for a high one; a reader is allowed to say no.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A passphrase, from the encrypting side.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::log_n(Self) -&gt; <span class="r">Int32</span></div><div class="d">The work factor this recipient writes into the file.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(StringView, log_n? : Int32) -&gt; <span class="r">Self</span></div><div class="d">A recipient for a passphrase, with the work factor it should use.</div><div class="d">The work factor is a parameter rather than a constant because it is the one knob that trades a reader's time for a guesser's: raise it when the passphrase is weak or the file will outlive the hardware.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let default_log_n : Int32</div><div class="d">The work factor a file gets when nobody says otherwise: 2^18, which is 256 MiB of scratch space and about a second on the machine that wrote this.</div></div>
+        <div class="fn"><div class="sig">pub let max_log_n : Int32</div><div class="d">The largest work factor a reader will accept. Four gibibytes of scratch space is the point past which a file stops being something to open and starts being something to defend against.</div></div>
+      </div>
+<!-- /generated:api -->
+    </div>
+  </div>
+
+  <footer>Apache-2.0 · <a href="https://github.com/moonbitstack/moonseal">github.com/moonbitstack/moonseal</a></footer>
+</div>
+<script type="module" src="assets/console.js"></script>
+</body>
+</html>
