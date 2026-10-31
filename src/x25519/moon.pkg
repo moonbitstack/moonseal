@@ -16,7 +16,7 @@ import {
   "moonbitstack/moonbase/bech32",
   "moonbitstack/moonseal/internal/crypt",
   "moonbitstack/moonseal/spec",
-  "moonbitstack/moonrand",
+  "moonbitstack/moonseed",
 }
 
 import {

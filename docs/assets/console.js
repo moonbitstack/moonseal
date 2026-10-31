@@ -107,8 +107,8 @@ const CMDS = {
   },
   install() {
     line(["dm", "moon add "], ["am", "moonbitstack/moonseal"]);
-    line(["dm", "moon add "], ["am", "moonbitstack/moonrand"], ["dm", "   # the random source"]);
-    line(["dm", "Then import the packages you use: "], ["cm", "moonseal"], ["dm", ", "], ["cm", "x25519"], ["dm", ", "], ["cm", "scrypt"], ["dm", ", "], ["cm", "moonrand/system"], ["dm", "."]);
+    line(["dm", "moon add "], ["am", "moonbitstack/moonseed"], ["dm", "   # the random source"]);
+    line(["dm", "Then import the packages you use: "], ["cm", "moonseal"], ["dm", ", "], ["cm", "x25519"], ["dm", ", "], ["cm", "scrypt"], ["dm", ", "], ["cm", "moonseed/system"], ["dm", "."]);
   },
   about() {
     line(["cr", "Seal a file for several people at once; any one of them opens it. A format, not a vault."]);

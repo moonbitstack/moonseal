@@ -96,7 +96,7 @@ pub impl Sink for BytesSink with fn write(self, bytes~) {
 /// Seal `plain` for `recipients`, and give back the file.
 ///
 /// The file key, every stanza's ephemeral material and the payload nonce come
-/// out of `random`, in that order: `@system.source` from `moonrand/system` in a
+/// out of `random`, in that order: `@system.source` from `moonseed/system` in a
 /// program, a `Replay` of fixed bytes in a test that wants the same file twice.
 /// A source that fails is a refusal, and it arrives before the first byte is
 /// written.
@@ -107,7 +107,7 @@ pub impl Sink for BytesSink with fn write(self, bytes~) {
 pub fn seal(
   recipients : Array[&@spec.Recipient],
   plain : BytesView,
-  random~ : &@moonrand.Source,
+  random~ : &@moonseed.Source,
 ) -> Bytes raise @spec.Refused {
   let file_key = @spec.draw(random, file_key_size)
   let stanzas = Array(capacity=recipients.length())
@@ -136,7 +136,7 @@ pub fn seal(
 pub fn seal_armored(
   recipients : Array[&@spec.Recipient],
   plain : BytesView,
-  random~ : &@moonrand.Source,
+  random~ : &@moonseed.Source,
 ) -> String raise @spec.Refused {
   @armor.encode(seal(recipients, plain, random~))
 }

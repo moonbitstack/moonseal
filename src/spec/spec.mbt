@@ -21,7 +21,7 @@ pub(all) suberror Refused {
   Payload(at~ : Int32)
   Armor(at~ : Int32, want~ : String)
   Key(want~ : Int32, got~ : Int32)
-  Random(@moonrand.Unavailable)
+  Random(@moonseed.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
 } derive(Eq, Debug)
 
@@ -83,8 +83,8 @@ pub fn Stanza::new(
 ///
 /// A recipient type calls this for its ephemeral material, so that a failing
 /// source arrives as the one error type every call here raises.
-pub fn draw(random : &@moonrand.Source, len : Int32) -> Bytes raise Refused {
-  @moonrand.bytes(len, random) catch {
+pub fn draw(random : &@moonseed.Source, len : Int32) -> Bytes raise Refused {
+  @moonseed.bytes(len, random) catch {
     why => raise Refused::Random(why)
   }
 }
@@ -97,7 +97,7 @@ pub fn draw(random : &@moonrand.Source, len : Int32) -> Bytes raise Refused {
 /// than found so that the one source a caller chose serves every stanza of a
 /// file, and so that a `Replay` seals the same file twice.
 pub(open) trait Recipient {
-  fn wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> Stanza raise Refused
+  fn wrap(Self, file_key~ : BytesView, random~ : &@moonseed.Source) -> Stanza raise Refused
 }
 
 ///|

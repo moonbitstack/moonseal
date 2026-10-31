@@ -5,7 +5,7 @@
 /// The work factor is written into the file, so it is the sender's choice and the
 /// reader's limit that meet in the stanza.
 test "the work factor is written and read" {
-  let random = @moonrand.Replay::new(Bytes::make(64, 0x21))
+  let random = @moonseed.Replay::new(Bytes::make(64, 0x21))
   // Fourteen is sixteen mebibytes of scratch space, which is as far as a test
   // that runs on four backends should go: the work factor changes the cost, not
   // the code, and the default of eighteen is the same path with a longer walk.
@@ -39,7 +39,7 @@ test "the default work factor is eighteen" {
 test "a work factor above the reader's ceiling is refused" {
   let stanza = @scrypt.Recipient::new("password", log_n=12).wrap(
     file_key=Bytes::make(16, 1),
-    random=@moonrand.Replay::new(Bytes::make(64, 5)),
+    random=@moonseed.Replay::new(Bytes::make(64, 5)),
   ) catch {
     _ => abort("no")
   }
@@ -61,7 +61,7 @@ test "a work factor above the reader's ceiling is refused" {
 test "the wrong passphrase opens nothing" {
   let stanza = @scrypt.Recipient::new("password", log_n=10).wrap(
     file_key=Bytes::make(16, 1),
-    random=@moonrand.Replay::new(Bytes::make(64, 7)),
+    random=@moonseed.Replay::new(Bytes::make(64, 7)),
   ) catch {
     _ => abort("no")
   }

@@ -52,7 +52,7 @@ test "a stanza wraps the file key for its own key and no other" {
   let other = @x25519.Identity::new(Bytes::make(32, 0x77)) catch {
     _ => abort("no")
   }
-  let random = @moonrand.Replay::new(Bytes::make(64, 0x08))
+  let random = @moonseed.Replay::new(Bytes::make(64, 0x08))
   let file_key = Bytes::make(16, 0x09)
   let stanza = mine.public().wrap(file_key~, random~) catch {
       error => fail("cannot wrap: \{error}")

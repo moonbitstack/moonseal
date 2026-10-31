@@ -2,8 +2,8 @@
 package "moonbitstack/moonseal/x25519"
 
 import {
-  "moonbitstack/moonrand",
   "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
 }
 
 // Values
@@ -16,7 +16,7 @@ pub struct Identity {
   // private fields
 }
 pub fn Identity::code(Self) -> String
-pub fn Identity::generate(random~ : &@moonrand.Source) -> Self raise @spec.Refused
+pub fn Identity::generate(random~ : &@moonseed.Source) -> Self raise @spec.Refused
 pub fn Identity::new(BytesView) -> Self raise @spec.Refused
 pub fn Identity::of(StringView) -> Self raise @spec.Refused
 pub fn Identity::public(Self) -> Recipient
@@ -30,7 +30,7 @@ pub fn Recipient::code(Self) -> String
 pub fn Recipient::key(Self) -> BytesView
 pub fn Recipient::new(BytesView) -> Self raise @spec.Refused
 pub fn Recipient::of(StringView) -> Self raise @spec.Refused
-pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> @spec.Stanza raise @spec.Refused
+pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &@moonseed.Source) -> @spec.Stanza raise @spec.Refused
 pub impl @spec.Recipient for Recipient
 
 // Type aliases

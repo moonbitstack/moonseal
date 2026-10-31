@@ -52,10 +52,10 @@ Import the ones you use. Nothing here is linked until something calls it.
 
 ```bash
 moon add moonbitstack/moonseal
-moon add moonbitstack/moonrand
+moon add moonbitstack/moonseed
 ```
 
-`@system` above is `moonbitstack/moonrand/system`, the operating system's random source.
+`@system` above is `moonbitstack/moonseed/system`, the operating system's random source.
 
 ## Use
 
@@ -216,8 +216,8 @@ because at that point the file is broken rather than somebody else's.
 
 ## Where the randomness comes from
 
-From the caller. Every call that needs randomness takes `random`, a moonrand
-`Source`: `@system.source` from `moonrand/system` in a program, or anything else
+From the caller. Every call that needs randomness takes `random`, a moonseed
+`Source`: `@system.source` from `moonseed/system` in a program, or anything else
 that implements the trait. A file draws in a fixed order: sixteen bytes for the
 file key, then what each recipient type needs for its stanza (thirty-two for
 X25519, sixteen for scrypt), then sixteen for the payload nonce. A source that

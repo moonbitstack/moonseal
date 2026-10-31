@@ -3,8 +3,8 @@
 
 ///|
 /// Randomness that is the same every time, so that two runs can be compared.
-fn pool(bytes : Int32, seed : Int32) -> @moonrand.Replay {
-  @moonrand.Replay::new(
+fn pool(bytes : Int32, seed : Int32) -> @moonseed.Replay {
+  @moonseed.Replay::new(
     Bytes::from_array(
       Array::makei(bytes, fn(i) { ((i * 31 + seed * 17) % 256).to_byte() }),
     ),
@@ -142,7 +142,7 @@ test "too little randomness is refused before anything is written" {
     false
   } catch {
     @spec.Refused::Random(why) => {
-      assert_eq(why, @moonrand.Exhausted)
+      assert_eq(why, @moonseed.Exhausted)
       true
     }
     _ => false

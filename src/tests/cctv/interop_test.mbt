@@ -44,7 +44,7 @@ test "interop: our x25519 file is the reference file" {
   let written = @moonseal.seal(
     [identity.public()],
     b"age",
-    random=@moonrand.Replay::new(test_entropy(64)),
+    random=@moonseed.Replay::new(test_entropy(64)),
   ) catch {
     error => fail("seal refused: \{error}")
   }
@@ -62,7 +62,7 @@ test "interop: our scrypt file is the reference file" {
   let written = @moonseal.seal(
     [@scrypt.Recipient::new("password", log_n=10)],
     b"age",
-    random=@moonrand.Replay::new(test_entropy(64)),
+    random=@moonseed.Replay::new(test_entropy(64)),
   ) catch {
     error => fail("seal refused: \{error}")
   }

@@ -154,10 +154,10 @@
         <div class="fn"><div class="sig">pub fn open_armored(Array[&amp;@spec.Identity], StringView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open an armored block.</div></div>
         <div class="fn"><div class="sig">pub fn open_stream(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open a file from a source, writing the plaintext to a sink as it is authenticated. Nothing is written until the header has verified.</div></div>
         <div class="fn"><div class="sig">pub fn open_stream_armored(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open an armored text block from a source.</div></div>
-        <div class="fn"><div class="sig">pub fn seal(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Seal <code>plain</code> for <code>recipients</code>, and give back the file.</div><div class="d">The file key, every stanza's ephemeral material and the payload nonce come out of <code>random</code>, in that order: <code>@system.source</code> from <code>moonrand/system</code> in a program, a <code>Replay</code> of fixed bytes in a test that wants the same file twice. A source that fails is a refusal, and it arrives before the first byte is written.</div><div class="d">How much a file draws: sixteen bytes for the file key, then thirty-two for each X25519 recipient and sixteen for each scrypt recipient, then sixteen for the payload nonce.</div></div>
-        <div class="fn"><div class="sig">pub fn seal_armored(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">String raise @spec.Refused</span></div><div class="d">The same as <code>seal</code>, written out as an armored text block.</div></div>
-        <div class="fn"><div class="sig">pub fn seal_stream(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">The same file, written a piece at a time: nothing larger than one chunk is ever held, which is what makes a file bigger than memory something this library can seal.</div></div>
-        <div class="fn"><div class="sig">pub fn seal_stream_armored(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonrand.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Seal to a sink, as an armored text block. The text is written in the same pieces the file is, so the whole of it never exists at once either.</div></div>
+        <div class="fn"><div class="sig">pub fn seal(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Seal <code>plain</code> for <code>recipients</code>, and give back the file.</div><div class="d">The file key, every stanza's ephemeral material and the payload nonce come out of <code>random</code>, in that order: <code>@system.source</code> from <code>moonseed/system</code> in a program, a <code>Replay</code> of fixed bytes in a test that wants the same file twice. A source that fails is a refusal, and it arrives before the first byte is written.</div><div class="d">How much a file draws: sixteen bytes for the file key, then thirty-two for each X25519 recipient and sixteen for each scrypt recipient, then sixteen for the payload nonce.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_armored(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">String raise @spec.Refused</span></div><div class="d">The same as <code>seal</code>, written out as an armored text block.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">The same file, written a piece at a time: nothing larger than one chunk is ever held, which is what makes a file bigger than memory something this library can seal.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream_armored(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Seal to a sink, as an armored text block. The text is written in the same pieces the file is, so the whole of it never exists at once either.</div></div>
       </div>
 
       <div class="pkg" id="pkg-spec">
@@ -167,7 +167,7 @@
   fn unwrap(Self, stanza~ : Stanza) -&gt; Bytes? raise Refused
 }</div><div class="d">A recipient type, from the decrypting side: given a stanza, either the file key or <code>None</code> for "not mine, try the next one".</div><div class="d">A stanza of a type this identity does not implement is <code>None</code>, and so is one that is well formed but sealed to another key. A stanza that claims to be this type and is malformed is a refusal, because at that point the file is broken rather than addressed to somebody else.</div></div>
         <div class="fn"><div class="sig">pub(open) trait Recipient {
-  fn wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; Stanza raise Refused
+  fn wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; Stanza raise Refused
 }</div><div class="d">A recipient type, from the encrypting side: it takes the file key and wraps it into a stanza only the matching identity can unwrap.</div><div class="d"><code>random</code> is where the ephemeral material comes from. It is passed rather than found so that the one source a caller chose serves every stanza of a file, and so that a <code>Replay</code> seals the same file twice.</div></div>
         <div class="fn"><div class="sig">pub(all) struct Stanza {
   kind : String
@@ -183,10 +183,10 @@
   Payload(at~ : Int32)
   Armor(at~ : Int32, want~ : String)
   Key(want~ : Int32, got~ : Int32)
-  Random(@moonrand.Unavailable)
+  Random(@moonseed.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
 } derive(Eq, @debug.Debug)</div><div class="d">Why this library would not do what it was asked.</div><div class="d">The variants are the places a file can stop being a file: the header does not say what the format says it says, a stanza of a known type does not either, the MAC over the header does not check out, no identity opened any stanza, a payload chunk did not authenticate, the text was not the armor it claimed to be, a key is not the size this format defines, the random source the caller handed in could not give what the file needs, or an input was longer than this library will read.</div><div class="d"><code>at</code> is an offset in bytes from the start of the input the call was given.</div></div>
-        <div class="fn"><div class="sig">pub fn draw(&amp;@moonrand.Source, Int32) -&gt; <span class="r">Bytes raise Refused</span></div><div class="d"><code>len</code> bytes from <code>random</code>, or the reason it had none as a refusal.</div><div class="d">A recipient type calls this for its ephemeral material, so that a failing source arrives as the one error type every call here raises.</div></div>
+        <div class="fn"><div class="sig">pub fn draw(&amp;@moonseed.Source, Int32) -&gt; <span class="r">Bytes raise Refused</span></div><div class="d"><code>len</code> bytes from <code>random</code>, or the reason it had none as a refusal.</div><div class="d">A recipient type calls this for its ephemeral material, so that a failing source arrives as the one error type every call here raises.</div></div>
       </div>
 
       <div class="pkg" id="pkg-header">
@@ -255,7 +255,7 @@
   // private fields
 }</div><div class="d">A secret key.</div></div>
         <div class="fn"><div class="sig">pub fn Identity::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>AGE-SECRET-KEY-1…</code>. Uppercase, which is how bech32 spells a secret so that it is hard to mistake for a public one.</div></div>
-        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonrand.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new secret key, drawn from <code>random</code>. A secret key is thirty-two random bytes and nothing else; X25519 clamps them when it uses them.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new secret key, drawn from <code>random</code>. A secret key is thirty-two random bytes and nothing else; X25519 clamps them when it uses them.</div></div>
         <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of secret key.</div></div>
         <div class="fn"><div class="sig">pub fn Identity::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>AGE-SECRET-KEY-1…</code>.</div></div>
         <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
@@ -267,7 +267,7 @@
         <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
         <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of public key.</div></div>
         <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1…</code>. The case of the string carries no meaning: bech32 allows either, and the checksum is taken over the lowercase one.</div></div>
-        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
         <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a public key, a secret key and a share are. X25519 has no other size.</div></div>
       </div>
 
@@ -284,7 +284,7 @@
 }</div><div class="d">A passphrase, from the encrypting side.</div></div>
         <div class="fn"><div class="sig">pub fn Recipient::log_n(Self) -&gt; <span class="r">Int32</span></div><div class="d">The work factor this recipient writes into the file.</div></div>
         <div class="fn"><div class="sig">pub fn Recipient::new(StringView, log_n? : Int32) -&gt; <span class="r">Self</span></div><div class="d">A recipient for a passphrase, with the work factor it should use.</div><div class="d">The work factor is a parameter rather than a constant because it is the one knob that trades a reader's time for a guesser's: raise it when the passphrase is weak or the file will outlive the hardware.</div></div>
-        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonrand.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
         <div class="fn"><div class="sig">pub let default_log_n : Int32</div><div class="d">The work factor a file gets when nobody says otherwise: 2^18, which is 256 MiB of scratch space and about a second on the machine that wrote this.</div></div>
         <div class="fn"><div class="sig">pub let max_log_n : Int32</div><div class="d">The largest work factor a reader will accept. Four gibibytes of scratch space is the point past which a file stops being something to open and starts being something to defend against.</div></div>
       </div>

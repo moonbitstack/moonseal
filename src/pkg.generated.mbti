@@ -2,8 +2,8 @@
 package "moonbitstack/moonseal"
 
 import {
-  "moonbitstack/moonrand",
   "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
 }
 
 // Values
@@ -17,13 +17,13 @@ pub fn open_stream(&Sink, Array[&@spec.Identity], &Source) -> Unit raise @spec.R
 
 pub fn open_stream_armored(&Sink, Array[&@spec.Identity], &Source) -> Unit raise @spec.Refused
 
-pub fn seal(Array[&@spec.Recipient], BytesView, random~ : &@moonrand.Source) -> Bytes raise @spec.Refused
+pub fn seal(Array[&@spec.Recipient], BytesView, random~ : &@moonseed.Source) -> Bytes raise @spec.Refused
 
-pub fn seal_armored(Array[&@spec.Recipient], BytesView, random~ : &@moonrand.Source) -> String raise @spec.Refused
+pub fn seal_armored(Array[&@spec.Recipient], BytesView, random~ : &@moonseed.Source) -> String raise @spec.Refused
 
-pub fn seal_stream(&Sink, Array[&@spec.Recipient], &Source, random~ : &@moonrand.Source) -> Unit raise @spec.Refused
+pub fn seal_stream(&Sink, Array[&@spec.Recipient], &Source, random~ : &@moonseed.Source) -> Unit raise @spec.Refused
 
-pub fn seal_stream_armored(&Sink, Array[&@spec.Recipient], &Source, random~ : &@moonrand.Source) -> Unit raise @spec.Refused
+pub fn seal_stream_armored(&Sink, Array[&@spec.Recipient], &Source, random~ : &@moonseed.Source) -> Unit raise @spec.Refused
 
 // Errors
 

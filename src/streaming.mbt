@@ -9,7 +9,7 @@ pub fn seal_stream(
   sink : &Sink,
   recipients : Array[&@spec.Recipient],
   source : &Source,
-  random~ : &@moonrand.Source,
+  random~ : &@moonseed.Source,
 ) -> Unit raise @spec.Refused {
   let file_key = @spec.draw(random, file_key_size)
   let stanzas = Array(capacity=recipients.length())
@@ -50,7 +50,7 @@ pub fn seal_stream_armored(
   sink : &Sink,
   recipients : Array[&@spec.Recipient],
   source : &Source,
-  random~ : &@moonrand.Source,
+  random~ : &@moonseed.Source,
 ) -> Unit raise @spec.Refused {
   let armor = ArmoredSink::new(sink)
   seal_stream(armor, recipients, source, random~)

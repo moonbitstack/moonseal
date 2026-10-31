@@ -21,5 +21,5 @@ import {
   "moonbitstack/moonseal/x25519",
   "moonbitstack/mooncrypt/cipher/chacha20",
   "moonbitstack/mooncrypt/hash/sha2",
-  "moonbitstack/moonrand",
+  "moonbitstack/moonseed",
 } for "test"

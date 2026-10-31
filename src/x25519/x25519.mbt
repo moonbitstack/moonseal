@@ -116,7 +116,7 @@ pub struct Identity {
 /// A new secret key, drawn from `random`. A secret key is thirty-two random
 /// bytes and nothing else; X25519 clamps them when it uses them.
 pub fn Identity::generate(
-  random~ : &@moonrand.Source,
+  random~ : &@moonseed.Source,
 ) -> Self raise @spec.Refused {
   { scalar: @spec.draw(random, size), }
 }

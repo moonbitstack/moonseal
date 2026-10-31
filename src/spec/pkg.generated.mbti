@@ -3,11 +3,11 @@ package "moonbitstack/moonseal/spec"
 
 import {
   "moonbitlang/core/debug",
-  "moonbitstack/moonrand",
+  "moonbitstack/moonseed",
 }
 
 // Values
-pub fn draw(&@moonrand.Source, Int32) -> Bytes raise Refused
+pub fn draw(&@moonseed.Source, Int32) -> Bytes raise Refused
 
 // Errors
 pub(all) suberror Refused {
@@ -18,7 +18,7 @@ pub(all) suberror Refused {
   Payload(at~ : Int32)
   Armor(at~ : Int32, want~ : String)
   Key(want~ : Int32, got~ : Int32)
-  Random(@moonrand.Unavailable)
+  Random(@moonseed.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
 } derive(Eq, @debug.Debug)
 pub fn Refused::equal(Self, Self) -> Bool
@@ -44,5 +44,5 @@ pub(open) trait Identity {
 }
 
 pub(open) trait Recipient {
-  fn wrap(Self, file_key~ : BytesView, random~ : &@moonrand.Source) -> Stanza raise Refused
+  fn wrap(Self, file_key~ : BytesView, random~ : &@moonseed.Source) -> Stanza raise Refused
 }
