@@ -74,6 +74,8 @@ def doc_comments(path: str) -> dict:
             while j < len(lines) and lines[j].startswith("///"):
                 body.append(lines[j][3:].strip())
                 j += 1
+            while j < len(lines) and lines[j].startswith("#"):
+                j += 1
             if not body or j >= len(lines):
                 continue
             m = DECL.match(lines[j])
