@@ -13,6 +13,7 @@
 /// this library will read.
 ///
 /// `at` is an offset in bytes from the start of the input the call was given.
+#derive(Eq, Debug)
 pub(all) suberror Refused {
   Header(at~ : Int32, want~ : String)
   Stanza(want~ : String)
@@ -23,7 +24,7 @@ pub(all) suberror Refused {
   Key(want~ : Int32, got~ : Int32)
   Random(@moonseed.Unavailable)
   Limit(want~ : Int32, got~ : Int32)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Refused with Eq::{equal, not_equal}

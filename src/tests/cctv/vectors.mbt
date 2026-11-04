@@ -3,6 +3,7 @@
 
 ///|
 /// What a case in the C2SP age test vectors is supposed to do.
+#derive(Eq, Debug)
 pub(all) enum Expect {
   Success
   HeaderFailure
@@ -11,7 +12,7 @@ pub(all) enum Expect {
   NoMatch
   ArmorFailure
   Skipped
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Expect with Eq::{equal, not_equal}
