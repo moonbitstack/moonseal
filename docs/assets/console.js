@@ -27,6 +27,7 @@ const engine = import(new URL("../engine/moonseal.js", import.meta.url).href);
 const WORK = 12;
 
 let KEY = null;
+let PQ = null;
 let LAST = null;
 
 // A row of coloured spans. A row of a file keeps its width and scrolls.
@@ -75,6 +76,8 @@ function flags(args) {
     else if (a === "--with") f.with = args[++i];
     else if (a === "--work") f.work = Number(args[++i]);
     else if (a === "--me") f.me = true;
+    else if (a === "--pq") f.pq = true;
+    else if (a === "--ssh") f.ssh = args[++i];
     else f.rest.push(a);
   }
   return f;
@@ -84,15 +87,17 @@ const yieldFrame = () => new Promise((r) => setTimeout(r, 20));
 
 const HELP = [
   ["install", "how to add the library"],
-  ["keygen", "make an X25519 identity"],
+  ["keygen [--pq]", "make an X25519 or post-quantum identity"],
   ['seal --pass "PW" "MSG"', "seal to a passphrase (--work N for 2^N)"],
   ['seal --to age1… "MSG"', "seal to one or more public keys"],
   ['seal --me "MSG"', "seal to the keygen key"],
+  ['seal --pq "MSG"', "seal to the post-quantum key"],
+  ['seal --ssh "ssh-ed25519 …" "MSG"', "seal to an SSH public key"],
   ['open --pass "PW"', "open the last file"],
-  ["open --with AGE-SECRET-KEY-1…", "open with a secret key"],
-  ["open --me", "open with the keygen key"],
+  ["open --with AGE-SECRET-KEY-…", "open with a secret key, of either kind"],
+  ["open --me | --pq", "open with a keygen key"],
   ["inspect", "read the last file's header"],
-  ["recipients | armor | stream | custom", "explain a feature"],
+  ["recipients | ssh | armor | stream | custom", "explain a feature"],
   ["api", "jump to the API reference"],
   ["clear", "empty the screen"],
 ];
@@ -116,8 +121,17 @@ const CMDS = {
   recipients() {
     line(["dm", "One file, many readers. Address it to a list of recipients:"]);
     line(["cr", "seal([alice.public(), bob.public()], plain, random=@system.source)"]);
+    line(["dm", "Five kinds of reader travel in the same header: an age1… key, a passphrase,"]);
+    line(["dm", "an ssh-ed25519 or ssh-rsa key, and the age1pq1… post-quantum hybrid."]);
     line(["dm", "A passphrase stanza must stand alone: mixing it with a public key is refused."]);
     line(["dm", "Any single identity on the list opens the whole file on its own. Try "], ["cm", "seal --to age1… --to age1… \"MSG\""], ["dm", "."]);
+  },
+  ssh() {
+    line(["dm", "A key its owner already has: ssh-ed25519 and ssh-rsa are recipient types here."]);
+    line(["cr", 'seal --ssh "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl you@example" "MSG"']);
+    line(["dm", "The stanza carries the first four bytes of the key's SHA-256 as a tag, so a reader"]);
+    line(["dm", "can skip stanzas that are not worth a decryption. Run "], ["cm", "inspect"], ["dm", " after sealing."]);
+    line(["dm", "Opening needs the private key file: "], ["cm", "@ssh.Identity::of(openai_private_key_text)"], ["dm", "."]);
   },
   armor() {
     line(["dm", "Somewhere a file has to survive an email. The armor writes the same bytes as:"]);
@@ -143,7 +157,15 @@ const CMDS = {
     document.getElementById("api").scrollIntoView({ behavior: "smooth" });
     line(["dm", "→ the API reference is below."]);
   },
-  async keygen() {
+  async keygen(args) {
+    if (args[0] === "--pq") {
+      PQ = await call("keygen_pq");
+      line(["ok", "post-quantum identity generated: one 32-byte seed, two key halves"]);
+      line(["dm", "  secret: "], ["am", `${PQ.secret.slice(0, 28)}…`]);
+      line(["dm", "  public: "], ["cm", `${PQ.public.slice(0, 24)}…`], ["dm", `  (${PQ.public.length} characters)`]);
+      line(["dm", "try: "], ["cr", 'seal --pq "for after the quantum"'], ["dm", "  then  "], ["cr", "open --pq"]);
+      return;
+    }
     KEY = await call("keygen");
     line(["ok", "identity generated, kept in this tab only"]);
     line(["dm", "  secret: "], ["am", KEY.secret]);
@@ -159,13 +181,19 @@ const CMDS = {
       say(["dm", 'seal --pass "***" "'], ["cr", message], ["dm", `"  · scrypt 2^${work}`]);
       await yieldFrame();
       LAST = await call("seal_passphrase", f.pass, message, work);
-    } else if (f.me || f.to.length > 0) {
+    } else if (f.me || f.pq || f.ssh || f.to.length > 0) {
       if (f.me && !KEY) return err("no key yet: run keygen first");
-      const keys = [...f.to, ...(f.me ? [KEY.public] : [])];
+      if (f.pq && !PQ) return err("no post-quantum key yet: run keygen --pq first");
+      const keys = [...f.to, ...(f.me ? [KEY.public] : []), ...(f.pq ? [PQ.public] : [])];
+      if (f.ssh) {
+        // A key line carries a comment after the key; only the first two words
+        // are the key, and the console passes them on as one string.
+        keys.push(f.ssh.trim().split(/\s+/).slice(0, 2).join(" "));
+      }
       say(["dm", "seal to "], ["cm", keys.map((k) => `${k.slice(0, 12)}…`).join(", ")], ["dm", ' "'], ["cr", message], ["dm", '"']);
       LAST = await call("seal_to", keys.join(" "), message);
     } else {
-      return err('seal needs --pass "PW", --to age1…, or --me');
+      return err('seal needs --pass "PW", --to age1…, --me, --pq, or --ssh');
     }
     line(["ok", "sealed →"]);
     printFile(LAST);
@@ -186,8 +214,12 @@ const CMDS = {
       if (!KEY) return err("no key: run keygen first");
       say(["dm", "open --me"]);
       plain = await call("open_with", KEY.secret, LAST);
+    } else if (f.pq) {
+      if (!PQ) return err("no post-quantum key: run keygen --pq first");
+      say(["dm", "open --pq"]);
+      plain = await call("open_with", PQ.secret, LAST);
     } else {
-      return err('open needs --pass "PW", --with AGE-SECRET-KEY-1…, or --me');
+      return err('open needs --pass "PW", --with AGE-SECRET-KEY-…, --me, or --pq');
     }
     line(["ok", "opened → "], ["cr", plain]);
   },

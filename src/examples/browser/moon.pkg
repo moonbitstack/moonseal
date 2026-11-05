@@ -9,6 +9,8 @@ import {
   "moonbitstack/moonseal/scrypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonseal/mlkem768x25519",
+  "moonbitstack/moonseal/ssh",
   "moonbitstack/moonseed/system",
 }
 
@@ -17,6 +19,7 @@ options(
     "js": {
       "exports": [
         "keygen",
+        "keygen_pq",
         "seal_passphrase",
         "seal_to",
         "open_passphrase",

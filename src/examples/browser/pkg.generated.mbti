@@ -6,6 +6,8 @@ pub fn inspect(String) -> String
 
 pub fn keygen() -> String
 
+pub fn keygen_pq() -> String
+
 pub fn open_passphrase(String, String) -> String
 
 pub fn open_with(String, String) -> String

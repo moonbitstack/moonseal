@@ -43,6 +43,8 @@ println(@moonseal.open(readers, file)) // b"the quick brown fox"
 | `armor` | The same file as text, when a binary cannot travel | [RFC 7468](https://www.rfc-editor.org/rfc/rfc7468) |
 | `x25519` | A recipient type for a public key | [RFC 7748](https://www.rfc-editor.org/rfc/rfc7748) |
 | `scrypt` | A recipient type for a passphrase | [RFC 7914](https://www.rfc-editor.org/rfc/rfc7914) |
+| `ssh` | A recipient type for an SSH key the reader already has: `ssh-ed25519` and `ssh-rsa` | [RFC 4253](https://www.rfc-editor.org/rfc/rfc4253) |
+| `mlkem768x25519` | A recipient type that survives a quantum computer: the hybrid X-Wing KEM under HPKE | [RFC 9180](https://www.rfc-editor.org/rfc/rfc9180) |
 
 Import the ones you use. Nothing here is linked until something calls it.
 
@@ -83,6 +85,63 @@ println(@moonseal.open(readers, file))
 The work factor is the one knob that trades a reader's time for a guesser's.
 Eighteen is the default; the format stops at twenty-two, which is four gibibytes
 of scratch space, and a reader can set its own ceiling with `max_log_n`.
+
+### A key the reader already has
+
+An SSH key signs and does not encrypt, but the two halves still meet: an Ed25519
+public key is a point that can be read as an X25519 one, and an RSA key can wrap
+a file key under OAEP. So a file can be addressed to the key somebody already
+has in `~/.ssh`, without them making anything new.
+
+```moonbit
+let reader = @ssh.Recipient::of(
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl someone@example",
+) catch {
+  _ => abort("not an SSH key")
+}
+let file = @moonseal.seal([reader], b"the quick brown fox", random=@system.source) catch {
+  _ => abort("cannot seal")
+}
+```
+
+The other side reads the private key file as it is: an OpenSSH key, or a PKCS#1
+or PKCS#8 RSA key.
+
+```moonbit
+fn open_with_my_key(key_text : String, file : Bytes) -> Bytes raise {
+  let identity : &@spec.Identity = @ssh.Identity::of(key_text)
+  @moonseal.open([identity], file)
+}
+```
+
+Both types carry a four-byte tag, the start of the SHA-256 of the public key as
+SSH writes it, so a reader can skip the stanzas that are not worth a
+decryption. The tag names a key, which is the price of that shortcut: unlike an
+`age1…` recipient, an SSH one is not anonymous.
+
+### For after the quantum computer
+
+`mlkem768x25519` is the hybrid X-Wing KEM: an ML-KEM-768 secret and an X25519
+secret, combined into one. Breaking either one alone leaves nothing to attack,
+which is what makes a file sealed this way as safe after a quantum computer as
+before it.
+
+```moonbit
+let after = @mlkem768x25519.Identity::generate(random=@system.source) catch {
+  _ => abort("no randomness")
+}
+println(after.code())          // AGE-SECRET-KEY-PQ-1…
+let file = @moonseal.seal([after.public()], b"still secret", random=@system.source) catch {
+  _ => abort("cannot seal")
+}
+println(@moonseal.open([after], file))
+```
+
+A recipient is one seed; the ML-KEM key and the X25519 key are both expanded
+from it, which is why the written form is one short string. A file addressed to
+a post-quantum recipient should not also be addressed to an `age1…` one: the
+file is then only as strong as the weaker stanza, and the header will happily
+carry both.
 
 ### A file larger than memory
 
@@ -214,14 +273,32 @@ because at that point the file is broken rather than somebody else's.
 | `x25519.Identity::public()` / `Recipient::of(text)` / `Recipient::code()` | `age1…` in and out. |
 | `scrypt.Recipient::new(passphrase, log_n?)` / `scrypt.Identity::new(passphrase, max_log_n?)` | A passphrase, with the work factor to write and the one to accept. |
 
+### `ssh`, `mlkem768x25519`
+
+| | |
+|:--|:--|
+| `ssh.Recipient::of(line)` | The key half of an `authorized_keys` line. |
+| `ssh.Recipient::new(blob)` | The same key as SSH writes it on the wire. |
+| `ssh.Recipient::kind()` / `code()` / `fingerprint()` / `blob()` | `ssh-ed25519` or `ssh-rsa`; the line back; the four-byte tag; the wire key. |
+| `ssh.Identity::of(text)` | An OpenSSH, PKCS#1 or PKCS#8 private key, as text. |
+| `ssh.Identity::public()` / `kind()` / `blob()` | What a sender needs from it. |
+| `ssh.min_rsa_bits` | 2048: below it a modulus is a file that looks safer than it is. |
+| `mlkem768x25519.Identity::generate(random~)` / `Identity::new(seed)` | A 32-byte seed that expands into both halves. |
+| `mlkem768x25519.Identity::of(text)` / `code()` | `AGE-SECRET-KEY-PQ-1…` in and out. |
+| `mlkem768x25519.Identity::public()` / `Recipient::of(text)` / `Recipient::code()` | `age1pq1…` in and out. |
+| `mlkem768x25519.Recipient::key()` / `size` | The 1216-byte key, and the seed length. |
+
 ## Where the randomness comes from
 
 From the caller. Every call that needs randomness takes `random`, a moonseed
 `Source`: `@system.source` from `moonseed/system` in a program, or anything else
 that implements the trait. A file draws in a fixed order: sixteen bytes for the
-file key, then what each recipient type needs for its stanza (thirty-two for
-X25519, sixteen for scrypt), then sixteen for the payload nonce. A source that
-fails is a `Refused::Random`, raised before anything is written.
+file key, then what each recipient type needs for its stanza, then sixteen for
+the payload nonce. A recipient type takes thirty-two bytes for X25519, sixteen
+for scrypt, thirty-two for `ssh-ed25519`, thirty-two for the OAEP seed of
+`ssh-rsa`, and sixty-four for the hybrid — a thirty-two-byte ML-KEM message and
+an X25519 scalar. A source that fails is a `Refused::Random`, raised before
+anything is written.
 
 The fixed order makes sealing reproducible: the same plaintext, the same
 recipients and a `Replay` of the same bytes give the same file, byte for byte,
@@ -248,6 +325,7 @@ sealed under the same recipients differ from their first byte.
 | Thing | Why not here |
 |:--|:--|
 | Key storage, trust, rotation, revocation | All four need state, and a library with state is no longer a format. |
+| Decrypting a passphrase-protected SSH key | `ssh-keygen -p` removes the passphrase, and the point of an SSH key here is that its holder already has it. |
 | A random-number generator | moonrand has them; the caller picks one and hands it in. |
 | Certificates and tokens | Those assert who somebody is. This is a message, and asserts nothing. |
 

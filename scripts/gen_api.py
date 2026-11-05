@@ -16,7 +16,7 @@ SRC = ROOT / "src"
 PAGE = ROOT / "docs" / "index.html"
 
 # The container first, then its contract, then the parts it is made of.
-PACKAGES = ["", "spec", "header", "stream", "armor", "x25519", "scrypt"]
+PACKAGES = ["", "spec", "header", "stream", "armor", "x25519", "scrypt", "ssh", "mlkem768x25519"]
 
 # Methods `derive` adds. They are in the derive clause already.
 DERIVED = {"equal", "not_equal", "to_repr", "output", "to_string", "hash"}
@@ -71,8 +71,15 @@ def doc_comments(path: str) -> dict:
             if line != "///|":
                 continue
             j, body = i + 1, []
+            fenced = False
             while j < len(lines) and lines[j].startswith("///"):
-                body.append(lines[j][3:].strip())
+                text = lines[j][3:].strip()
+                # A code block is an example for a reader of the source, not a
+                # paragraph of the reference; it is skipped whole.
+                if text.startswith("```"):
+                    fenced = not fenced
+                elif not fenced:
+                    body.append(text)
                 j += 1
             while j < len(lines) and lines[j].startswith("#"):
                 j += 1
