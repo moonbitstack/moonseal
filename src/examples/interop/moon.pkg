@@ -1,0 +1,28 @@
+// A command line around the library, for the one job the examples cannot do:
+// exchange files with another age implementation.
+//
+//     moon run src/examples/interop -- seal  <in> <out> <recipients>
+//     moon run src/examples/interop -- open  <in> <out> <identity>...
+//     moon run src/examples/interop -- recipient <identity>
+//
+// A recipients file holds one recipient per line: an `age1…` key, an
+// `age1pq1…` key, an `ssh-ed25519` or `ssh-rsa` line, or `passphrase:text`.
+// An identity file holds the one secret that can open the file: an
+// `AGE-SECRET-KEY-…` key, an SSH private key in its PEM form, or
+// `passphrase:text`. Blank lines and lines starting with `#` are ignored.
+//
+// Files are read whole, which is what a test fixture is; the library's
+// streaming calls are what a program with a file bigger than memory uses.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/mlkem768x25519",
+  "moonbitstack/moonseal/scrypt",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/ssh",
+  "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonseed/system",
+}
