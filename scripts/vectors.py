@@ -26,12 +26,6 @@ EXPECT = {
     "armor failure": "ArmorFailure",
 }
 
-# Recipient types this library does not implement. A vector that names one of
-# these keys cannot be judged here either way: the file may open through a
-# stanza type that is not in this library.
-UNSUPPORTED = "AGE-SECRET-KEY-PQ-"
-
-
 # A vector whose file is larger than this is left out of the build. The three
 # that are, are the 258-chunk streaming cases: sixteen mebibytes of mostly zeros
 # each, which the test of chunk numbering below already covers a chunk at a
@@ -93,6 +87,7 @@ def main(argv):
         "",
         "///|",
         "/// What a case in the C2SP age test vectors is supposed to do.",
+        "#derive(Eq, Debug)",
         "pub(all) enum Expect {",
         "  Success",
         "  HeaderFailure",
@@ -101,7 +96,7 @@ def main(argv):
         "  NoMatch",
         "  ArmorFailure",
         "  Skipped",
-        "} derive(Eq, Debug)",
+        "}",
         "",
         "///|",
         "pub extend Expect with Eq::{equal, not_equal}",
@@ -150,9 +145,7 @@ def main(argv):
         expect = EXPECT[meta["expect"][0]]
         identities = meta.get("identity", [])
         reason = None
-        if any(identity.startswith(UNSUPPORTED) for identity in identities):
-            reason = "needs a recipient type this library does not have"
-        elif len(body) > LIMIT:
+        if len(body) > LIMIT:
             reason = "%d bytes, over the %d this build embeds" % (len(body), LIMIT)
         if reason is not None:
             expect = "Skipped"

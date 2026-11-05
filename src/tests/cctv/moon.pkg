@@ -19,6 +19,7 @@ import {
   "moonbitstack/moonseal/scrypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonseal/mlkem768x25519",
   "moonbitstack/mooncrypt/cipher/chacha20",
   "moonbitstack/mooncrypt/hash/sha2",
   "moonbitstack/moonseed",

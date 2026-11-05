@@ -36,15 +36,29 @@ fn decoded(bytes : BytesView) -> StringView {
 }
 
 ///|
+/// One identity a case names, which is one of the two key types the format
+/// spells in bech32. A case whose key does not parse is not a case at all: the
+/// refusal is handed up rather than treated as "not mine", so that a broken key
+/// type shows up as a failing vector instead of a quietly skipped identity.
+fn identity_of(text : String) -> &@spec.Identity raise @spec.Refused {
+  if text.has_prefix("AGE-SECRET-KEY-PQ-") {
+    let identity : &@spec.Identity = @mlkem768x25519.Identity::of(text)
+    return identity
+  }
+  let identity : &@spec.Identity = @x25519.Identity::of(text)
+  identity
+}
+
+///|
 /// Run one case and say what happened: the category of the outcome, and the
 /// plaintext when there is one.
-fn attempt(vector : @cctv.Vector) -> (@cctv.Expect, Bytes) {
+fn attempt(vector : @cctv.Vector) -> (@cctv.Expect, Bytes) raise @spec.Refused {
   let file = @base64.decode(vector.data, padding=true, strict=true) catch {
-    _ => return (@cctv.Skipped, b"")
+    _ => raise @spec.Refused::Header(at=0, want="a base64 file")
   }
   let identities : Array[&@spec.Identity] = []
   for text in vector.identities {
-    identities.push(@x25519.Identity::of(text) catch { _ => continue })
+    identities.push(identity_of(text))
   }
   for text in vector.passphrases {
     identities.push(@scrypt.Identity::new(text))
@@ -71,14 +85,19 @@ test "cctv: the age test vectors" {
       continue
     }
     ran = ran + 1
-    let (got, plain) = attempt(vector)
-    if got != vector.expect {
-      failures.push("\{vector.name}: expected \{vector.expect}, got \{got}")
-    } else if got == @cctv.Success {
-      let digest = @hex.encode(@sha2.hash(plain))
-      if digest != vector.digest {
-        failures.push("\{vector.name}: opened to the wrong bytes")
-      }
+    let outcome = Ok(attempt(vector)) catch { error => Err(error) }
+    match outcome {
+      Err(error) =>
+        failures.push("\{vector.name}: cannot run the case: \{error}")
+      Ok((got, plain)) =>
+        if got != vector.expect {
+          failures.push("\{vector.name}: expected \{vector.expect}, got \{got}")
+        } else if got == @cctv.Success {
+          let digest = @hex.encode(@sha2.hash(plain))
+          if digest != vector.digest {
+            failures.push("\{vector.name}: opened to the wrong bytes")
+          }
+        }
     }
   }
   println("cctv: \{ran} cases ran, \{skipped} skipped")
