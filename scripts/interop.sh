@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-bin=${1:?usage: scripts/interop.sh <interop-binary>}
+bin=$(cd "$(dirname "${1:?usage: scripts/interop.sh <interop-binary>}")" && pwd)/$(basename "$1")
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
