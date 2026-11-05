@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/internal/hpke"
+
+import {
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+}
+
+// Values
+pub fn context(BytesView, BytesView) -> Context
+
+pub fn decapsulate(BytesView, BytesView) -> Bytes raise @spec.Refused
+
+pub let enc_size : Int32
+
+pub fn encapsulate(BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
+
+pub fn open(BytesView, BytesView, BytesView) -> Bytes?
+
+pub fn public_of(BytesView) -> Bytes raise @spec.Refused
+
+pub let public_size : Int32
+
+pub fn seal(BytesView, BytesView, BytesView) -> Bytes
+
+pub let seed_size : Int32
+
+// Errors
+
+// Types and methods
+pub(all) struct Context {
+  key : Bytes
+  nonce : Bytes
+}
+
+pub(all) struct Encapsulated {
+  enc : Bytes
+  shared : Bytes
+}
+
+// Type aliases
+
+// Traits

@@ -13,7 +13,7 @@
 // person it names. A format can carry a key; it cannot vouch for one.
 import {
   "moonbitstack/moonbase/base64",
-  "moonbitstack/moonbase/bech32",
+  "moonbitstack/moonseal/internal/keytext",
   "moonbitstack/moonseal/internal/crypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseed",

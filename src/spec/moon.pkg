@@ -8,5 +8,6 @@
 //
 // https://age-encryption.org/v1
 import {
+  "moonbitstack/moonseal/internal/keytext",
   "moonbitstack/moonseed",
 }

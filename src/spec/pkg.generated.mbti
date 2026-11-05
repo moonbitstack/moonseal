@@ -9,6 +9,8 @@ import {
 // Values
 pub fn draw(&@moonseed.Source, Int32) -> Bytes raise Refused
 
+pub fn text_key(StringView, hrp~ : String, what~ : String) -> Bytes raise Refused
+
 // Errors
 #derive(Eq, @debug.Debug)
 pub(all) suberror Refused {

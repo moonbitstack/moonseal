@@ -91,6 +91,25 @@ pub fn draw(random : &@moonseed.Source, len : Int32) -> Bytes raise Refused {
 }
 
 ///|
+/// The bytes behind a written key whose prefix is `hrp`.
+///
+/// The case of the string carries no meaning — bech32 allows either, and its
+/// checksum is always taken over the lowercase form — so `hrp` is compared in
+/// lowercase. A string whose checksum holds only as bech32m is named as that
+/// mistake, since it is one the caller can act on.
+pub fn text_key(
+  text : StringView,
+  hrp~ : String,
+  what~ : String,
+) -> Bytes raise Refused {
+  @keytext.decode(text, hrp~, kind=Bech32) catch {
+    @keytext.OtherKind =>
+      raise Refused::Stanza(want="a bech32 checksum, not bech32m")
+    _ => raise Refused::Stanza(want=what)
+  }
+}
+
+///|
 /// A recipient type, from the encrypting side: it takes the file key and wraps
 /// it into a stanza only the matching identity can unwrap.
 ///

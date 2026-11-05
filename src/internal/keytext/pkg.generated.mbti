@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/internal/keytext"
+
+// Values
+pub fn decode(StringView, hrp~ : String, kind~ : Kind) -> Bytes raise Malformed
+
+pub fn encode(StringView, BytesView, kind~ : Kind) -> String
+
+// Errors
+pub(all) suberror Malformed {
+  Bad
+  OtherKind
+  Prefix
+}
+
+// Types and methods
+pub(all) enum Kind {
+  Bech32
+  Bech32m
+}
+
+// Type aliases
+
+// Traits

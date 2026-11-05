@@ -40,41 +40,15 @@ pub fn Recipient::new(key : BytesView) -> Self raise @spec.Refused {
 /// From its written form, `age1…`. The case of the string carries no meaning:
 /// bech32 allows either, and the checksum is taken over the lowercase one.
 pub fn Recipient::of(text : StringView) -> Self raise @spec.Refused {
-  let key = decode_key(text, "a bech32 public key")
-  if key.hrp != recipient_hrp {
-    raise @spec.Refused::Stanza(want="a key that starts with age1")
-  }
-  Recipient::new(key.data)
-}
-
-///|
-/// A key's prefix and bytes. A string whose checksum holds only as bech32m is
-/// named as such, since that is a mistake the caller can act on.
-fn decode_key(
-  text : StringView,
-  what : String,
-) -> @bech32.Decoded raise @spec.Refused {
-  @bech32.decode(text, kind=Bech32) catch {
-    _ => {
-      let only_bech32m = try @bech32.decode(text, kind=Bech32m) catch {
-        _ => false
-      } noraise {
-        _ => true
-      }
-      if only_bech32m {
-        raise @spec.Refused::Stanza(want="a bech32 checksum, not bech32m")
-      }
-      raise @spec.Refused::Stanza(want=what)
-    }
-  }
+  Recipient::new(
+    @spec.text_key(text, hrp=recipient_hrp, what="a key that starts with age1"),
+  )
 }
 
 ///|
 /// The written form, `age1…`.
 pub fn Recipient::code(self : Recipient) -> String {
-  @bech32.encode(recipient_hrp, self.key, kind=Bech32) catch {
-    _ => abort("x25519: a 32-byte key always encodes")
-  }
+  @keytext.encode(recipient_hrp, self.key, kind=Bech32)
 }
 
 ///|
@@ -133,20 +107,20 @@ pub fn Identity::new(scalar : BytesView) -> Self raise @spec.Refused {
 ///|
 /// From its written form, `AGE-SECRET-KEY-1…`.
 pub fn Identity::of(text : StringView) -> Self raise @spec.Refused {
-  let key = decode_key(text, "a bech32 secret key")
-  if key.hrp != identity_hrp.to_lower() {
-    raise @spec.Refused::Stanza(want="a key that starts with AGE-SECRET-KEY-1")
-  }
-  Identity::new(key.data)
+  Identity::new(
+    @spec.text_key(
+      text,
+      hrp=identity_hrp.to_lower(),
+      what="a key that starts with AGE-SECRET-KEY-1",
+    ),
+  )
 }
 
 ///|
 /// The written form, `AGE-SECRET-KEY-1…`. Uppercase, which is how bech32 spells a
 /// secret so that it is hard to mistake for a public one.
 pub fn Identity::code(self : Identity) -> String {
-  @bech32.encode(identity_hrp, self.scalar, kind=Bech32).to_upper() catch {
-    _ => abort("x25519: a 32-byte key always encodes")
-  }
+  @keytext.encode(identity_hrp.to_lower(), self.scalar, kind=Bech32).to_upper()
 }
 
 ///|

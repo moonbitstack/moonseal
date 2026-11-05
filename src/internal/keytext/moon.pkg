@@ -1,0 +1,11 @@
+// Bech32 as the age format uses it: BIP 173's charset, checksum and letter
+// case, without the ninety-character ceiling.
+//
+// BIP 173 caps a string at ninety characters because that is the largest a
+// Bitcoin address needs, and the reference implementation enforces it. An age
+// post-quantum public key is 1216 bytes, which is a 1974-character string, so
+// the cap has to go: the checksum's guarantees do not depend on the length, and
+// the format says so.
+//
+// It lives here, once, rather than in each key type that needs it; nothing
+// outside this module can import it.

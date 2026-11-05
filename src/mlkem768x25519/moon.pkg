@@ -1,0 +1,38 @@
+// The post-quantum recipient type: MLKEM768-X25519, the hybrid X-Wing KEM under
+// HPKE.
+//
+// https://c2sp.org/age (the mlkem768x25519 stanza)
+// https://www.rfc-editor.org/rfc/rfc9180 (HPKE)
+//
+// A file sealed to this type stays sealed against an adversary who can run
+// Shor's algorithm, because opening it needs both an ML-KEM-768 secret and an
+// X25519 one. The two are combined into a single secret rather than negotiated,
+// so breaking either alone leaves nothing to attack.
+//
+// A recipient is an ML-KEM encapsulation key followed by an X25519 public key,
+// 1216 bytes, written as `age1pq1…`; a secret is one thirty-two-byte seed,
+// written as `AGE-SECRET-KEY-PQ-1…`. The seed is expanded into both halves,
+// which is why one short string is the whole of an identity.
+//
+// The format treats this type as one that should not share a file with the
+// others: sealing to a post-quantum recipient and an X25519 one at once gives a
+// file only as strong as the weaker of the two. This library leaves that rule to
+// the caller — the header carries both, and a reader opens whichever stanza is
+// its own — but a sender with nothing else in mind should address a file to
+// post-quantum recipients alone.
+//
+// Not here: where the seed is stored. It is thirty-two bytes, and keeping it is
+// the caller's business.
+import {
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonseal/internal/keytext",
+  "moonbitstack/moonseal/internal/hpke",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+}
+
+import {
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+} for "test"
