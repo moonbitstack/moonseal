@@ -1,0 +1,43 @@
+// The SSH recipient types: a file sealed to a key its owner already has.
+//
+// https://c2sp.org/age (the ssh-ed25519 and ssh-rsa stanzas)
+// https://www.rfc-editor.org/rfc/rfc4253 (the wire encoding of a public key)
+// https://www.rfc-editor.org/rfc/rfc4251 (mpint)
+//
+// An SSH key is not a key for encryption: Ed25519 signs, and RSA here is used
+// only for the operation age defines. The ed25519 type is therefore two
+// conversions away from the key a reader holds — the Edwards point becomes a
+// Montgomery one, and the signature scalar becomes an X25519 secret — and the
+// RSA type is one RSA-OAEP message under the public half.
+//
+// Both stanzas carry a four-byte tag, the start of the SHA-256 of the public key
+// as SSH writes it, so that a reader can tell at a glance whether a stanza is
+// worth trying. The tag is a hint, not an identity: four bytes collide, and a
+// stanza whose tag matches but whose body does not open is simply not ours.
+//
+// Neither type is anonymous. The tag names a key, which is the price of not
+// having to attempt a decryption for every stanza in a file addressed to a
+// crowd.
+//
+// Not here: where a key file lives, what its permissions are, and whether the
+// key belongs to the person who sent the file. Those are the caller's, as
+// everywhere else in this library.
+import {
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/buffer",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/mooncrypt/key",
+  "moonbitstack/mooncrypt/rsa",
+  "moonbitstack/moonseed",
+}
+
+import {
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonseed",
+} for "test"
