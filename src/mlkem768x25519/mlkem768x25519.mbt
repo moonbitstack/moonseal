@@ -32,8 +32,11 @@ pub struct Recipient {
 ///|
 /// From the 1216 bytes of a public key.
 pub fn Recipient::new(key : BytesView) -> Self raise @spec.Refused {
-  if key.length() != @hpke.public_size {
-    raise @spec.Refused::Key(want=@hpke.public_size, got=key.length())
+  if key.length() != @hpke.public_size(@hpke.XWing) {
+    raise @spec.Refused::Key(
+      want=@hpke.public_size(@hpke.XWing),
+      got=key.length(),
+    )
   }
   { key: key.to_owned(), }
 }
@@ -66,11 +69,11 @@ pub fn Recipient::key(self : Recipient) -> BytesView {
 /// The encrypting side: one encapsulation, and the file key sealed under the
 /// secret it produced.
 pub impl @spec.Recipient for Recipient with fn wrap(self, file_key~, random~) {
-  let sent = @hpke.encapsulate(self.key[:], random)
+  let sent = @hpke.encapsulate(@hpke.XWing, self.key[:], random)
   @spec.Stanza::new(
     kind~,
     args=[@base64.encode(sent.enc, padding=false)],
-    body=@hpke.seal(sent.shared, info, file_key),
+    body=@hpke.seal(@hpke.XWing, sent.shared, info, file_key),
   )
 }
 
@@ -122,7 +125,7 @@ pub fn Identity::code(self : Identity) -> String {
 /// The public half, which is what a sender needs.
 pub fn Identity::public(self : Identity) -> Recipient {
   {
-    key: @hpke.public_of(self.seed[:]) catch {
+    key: @hpke.public_of(@hpke.XWing, self.seed[:]) catch {
       _ => abort("mlkem768x25519: a 32-byte seed always has a public key")
     },
   }
@@ -144,14 +147,14 @@ pub impl @spec.Identity for Identity with fn unwrap(self, stanza~) {
   let enc = @base64.decode(stanza.args[0], padding=false, strict=true) catch {
     _ => raise @spec.Refused::Stanza(want="a base64 encapsulation")
   }
-  guard enc.length() == @hpke.enc_size else {
+  guard enc.length() == @hpke.enc_size(@hpke.XWing) else {
     raise @spec.Refused::Stanza(want="a 1120-byte encapsulation")
   }
   guard stanza.body.length() == 32 else {
     raise @spec.Refused::Stanza(want="a 32-byte body")
   }
-  let shared = @hpke.decapsulate(self.seed[:], enc)
-  return @hpke.open(shared, info, stanza.body[:])
+  let shared = @hpke.decapsulate(@hpke.XWing, self.seed[:], enc)
+  return @hpke.open(@hpke.XWing, shared, info, stanza.body[:])
 }
 
 ///|

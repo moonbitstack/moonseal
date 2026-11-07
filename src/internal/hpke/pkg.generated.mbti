@@ -2,28 +2,57 @@
 package "moonbitstack/moonseal/internal/hpke"
 
 import {
+  "moonbitlang/core/debug",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseed",
 }
 
 // Values
-pub fn context(BytesView, BytesView) -> Context
+pub fn context(Kem, BytesView, BytesView) -> Context
 
-pub fn decapsulate(BytesView, BytesView) -> Bytes raise @spec.Refused
+pub fn decapsulate(Kem, BytesView, BytesView) -> Bytes raise @spec.Refused
 
-pub let enc_size : Int32
+pub fn enc_size(Kem) -> Int32
 
-pub fn encapsulate(BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
+pub fn encapsulate(Kem, BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
 
-pub fn open(BytesView, BytesView, BytesView) -> Bytes?
+pub fn from_seed(Kem, BytesView) -> Bytes raise @spec.Refused
 
-pub fn public_of(BytesView) -> Bytes raise @spec.Refused
+pub fn hybrid_decapsulate(BytesView, BytesView) -> Bytes raise @spec.Refused
 
-pub let public_size : Int32
+pub fn hybrid_encapsulate(BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
 
-pub fn seal(BytesView, BytesView, BytesView) -> Bytes
+pub fn hybrid_from_seed(BytesView) -> Bytes
 
-pub let seed_size : Int32
+pub fn hybrid_public_of(BytesView) -> Bytes raise @spec.Refused
+
+pub fn open(Kem, BytesView, BytesView, BytesView) -> Bytes?
+
+pub fn p256_decapsulate(BytesView, BytesView) -> Bytes raise @spec.Refused
+
+pub fn p256_encapsulate(BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
+
+pub fn p256_from_seed(BytesView) -> Bytes raise @spec.Refused
+
+pub fn p256_public_of(BytesView) -> Bytes raise @spec.Refused
+
+pub fn p256_scalar(&@moonseed.Source) -> Bytes raise @spec.Refused
+
+pub fn p256_uncompressed(BytesView) -> Bytes raise @spec.Refused
+
+pub fn public_of(Kem, BytesView) -> Bytes raise @spec.Refused
+
+pub fn public_size(Kem) -> Int32
+
+pub fn seal(Kem, BytesView, BytesView, BytesView) -> Bytes
+
+pub fn xwing_decapsulate(BytesView, BytesView) -> Bytes raise @spec.Refused
+
+pub fn xwing_encapsulate(BytesView, &@moonseed.Source) -> Encapsulated raise @spec.Refused
+
+pub fn xwing_from_seed(BytesView) -> Bytes
+
+pub fn xwing_public_of(BytesView) -> Bytes raise @spec.Refused
 
 // Errors
 
@@ -37,6 +66,16 @@ pub(all) struct Encapsulated {
   enc : Bytes
   shared : Bytes
 }
+
+#derive(Eq, @debug.Debug)
+pub(all) enum Kem {
+  XWing
+  P256
+  Mlkem768P256
+}
+pub fn Kem::equal(Self, Self) -> Bool
+pub fn Kem::not_equal(Self, Self) -> Bool
+pub fn Kem::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

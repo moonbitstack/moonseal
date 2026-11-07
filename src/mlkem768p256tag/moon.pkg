@@ -1,0 +1,43 @@
+// The tagged recipient type that has to outlive a quantum computer: an ML-KEM-768
+// key hybridised with a P-256 point, under HPKE.
+//
+// https://c2sp.org/age (the mlkem768p256tag stanza)
+// https://www.rfc-editor.org/rfc/rfc9180 (HPKE)
+// https://datatracker.ietf.org/doc/draft-ietf-hpke-pq/ (the MLKEM768-P256 KEM)
+//
+// The shape of a tagged recipient, with the curve kept for the hardware that can
+// only hold one and an ML-KEM secret added in front of it: opening a file needs
+// both halves, so breaking either alone leaves nothing to attack. A device that
+// stores only the P-256 half would still name the key, which is why the tag
+// hashes that half alone.
+//
+// The format defines the recipient and not the identity, as it does for the
+// plain tagged type. A secret is one thirty-two-byte seed; the ML-KEM key and
+// the P-256 scalar are both expanded from it, which is why one short seed is the
+// whole of an identity.
+//
+// A file addressed to this type should not also be addressed to one that is not
+// post-quantum: it would then be only as strong as the weaker stanza. This
+// library leaves that rule to the caller, as it does everywhere else — the
+// header carries both, and a reader opens whichever stanza is its own.
+//
+// Not here: user presence, PINs, and where the seed is kept.
+import {
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/mooncrypt/pq/mlkem",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/internal/hpke",
+  "moonbitstack/moonseal/internal/keytext",
+  "moonbitstack/moonseal/internal/tag",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+}
+
+import {
+  "moonbitlang/core/encoding/hex",
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/header",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonseed",
+} for "test"

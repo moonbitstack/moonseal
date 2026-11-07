@@ -1,14 +1,16 @@
-// The HPKE base mode, and the one hybrid KEM the post-quantum recipient uses.
+// The HPKE base mode, and the three KEMs the recipients here run on.
 //
 // RFC 9180 §6.1, base mode, with no pre-shared key and a single message per
 // context: a file key is sealed once and the context is thrown away, so the
 // sequence number never advances past zero and the export interface is not
 // needed.
 //
-// The KEM is MLKEM768-X25519 (X-Wing) from draft-ietf-hpke-pq: an ML-KEM-768
-// encapsulation key with an X25519 public key behind it, combined into one
-// secret with SHA3-256 rather than negotiated. A secret key is a single
-// thirty-two-byte seed, expanded by SHAKE256 into both halves.
+// The KEMs are the ones the age format names. MLKEM768-X25519 (X-Wing) and
+// MLKEM768-P256 come from draft-ietf-hpke-pq: an ML-KEM-768 encapsulation key
+// with a curve point behind it, combined into one secret with SHA3-256 rather
+// than negotiated, from a single thirty-two-byte seed. DHKEM over P-256 is the
+// RFC's own §7.1 construction, for the hardware keys that hold nothing but a
+// scalar.
 import {
   "moonbitlang/core/buffer",
   "moonbitlang/core/encoding/utf8",
@@ -17,8 +19,10 @@ import {
   "moonbitstack/mooncrypt/hash/sha2",
   "moonbitstack/mooncrypt/hash/sha3",
   "moonbitstack/mooncrypt/kdf/hkdf",
+  "moonbitstack/mooncrypt/kex/ecdh",
   "moonbitstack/mooncrypt/kex/x25519",
   "moonbitstack/mooncrypt/pq/mlkem",
+  "moonbitstack/mooncrypt/sign/ecdsa",
   "moonbitstack/mooncrypt/spec" @cryptspec,
   "moonbitstack/moonseed",
 }

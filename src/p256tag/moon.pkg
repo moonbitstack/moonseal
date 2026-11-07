@@ -1,0 +1,41 @@
+// The tagged recipient type: a P-256 point behind four bytes of tag.
+//
+// https://c2sp.org/age (the p256tag stanza)
+// https://www.rfc-editor.org/rfc/rfc9180 (HPKE, DHKEM over P-256)
+//
+// A tagged recipient is the public half of a key that lives in hardware. The
+// four-byte tag exists because such a device has to be asked before it will
+// decrypt anything: without one, every file would cost one prompt per stanza.
+// The price is that the tag names the device, so a file addressed this way is
+// not anonymous the way an `age1…` one is.
+//
+// The format defines the recipient and not the identity. There is no written
+// form for a secret here, no `AGE-SECRET-KEY-…`, because what holds it is
+// whatever the device's plugin is; a plugin that implements an identity is the
+// expected caller, and this package is the arithmetic it would otherwise have to
+// repeat.
+//
+// The file key travels under HPKE in base mode, with the label below as its
+// `info` and ChaCha20-Poly1305 as its AEAD, so a ciphertext made here cannot be
+// read as one from any other use of the same curve.
+//
+// Not here: user presence, PINs, and where the scalar is kept. All three belong
+// to the device.
+import {
+  "moonbitlang/core/buffer",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonseal/internal/crypt",
+  "moonbitstack/moonseal/internal/hpke",
+  "moonbitstack/moonseal/internal/keytext",
+  "moonbitstack/moonseal/internal/tag",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+}
+
+import {
+  "moonbitlang/core/encoding/hex",
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/header",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+} for "test"

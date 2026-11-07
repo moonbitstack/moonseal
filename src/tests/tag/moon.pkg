@@ -1,0 +1,17 @@
+// The files the reference implementation wrote, and the tests that open them.
+//
+// `vectors.mbt` holds two sealed files as base64 and the plaintext they carry.
+// Keeping them in the build rather than on disk is what lets these tests run on
+// a backend with no filesystem, and what keeps the other implementation's output
+// from being something a test could quietly regenerate.
+
+import {
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonbase/base64",
+  "moonbitstack/moonseal/p256tag",
+  "moonbitstack/moonseal/mlkem768p256tag",
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/moonseed",
+  "moonbitlang/core/encoding/hex",
+} for "test"

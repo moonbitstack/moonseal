@@ -1,0 +1,17 @@
+// The tag a tagged recipient puts in its stanza: a short hash of who the file is
+// for, so that a device which has to be asked before every decryption can skip
+// the stanzas that are not its own.
+//
+// It lives here because both tagged recipient types compute it the same way and
+// differ only in which part of the public key they name — and because getting
+// the label or the order of the two halves wrong produces a tag that looks
+// plausible and matches nothing.
+//
+// Not here: anything a caller decides. A tag is a hint, and what to do with a
+// hint belongs to the identity that read it.
+import {
+  "moonbitlang/core/buffer",
+  "moonbitstack/mooncrypt/hash/sha2",
+  "moonbitstack/mooncrypt/kdf/hkdf",
+  "moonbitstack/mooncrypt/spec" @cryptspec,
+}

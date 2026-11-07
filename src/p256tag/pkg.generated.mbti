@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseal/p256tag"
+
+import {
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseed",
+}
+
+// Values
+pub let point_size : Int32
+
+pub let size : Int32
+
+// Errors
+
+// Types and methods
+pub struct Identity {
+  // private fields
+}
+pub fn Identity::from_seed(BytesView) -> Self raise @spec.Refused
+pub fn Identity::generate(random~ : &@moonseed.Source) -> Self raise @spec.Refused
+pub fn Identity::key(Self) -> BytesView
+pub fn Identity::new(BytesView) -> Self raise @spec.Refused
+pub fn Identity::public(Self) -> Recipient
+pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -> Bytes? raise @spec.Refused
+pub impl @spec.Identity for Identity
+
+pub struct Recipient {
+  // private fields
+}
+pub fn Recipient::code(Self) -> String
+pub fn Recipient::key(Self) -> BytesView
+pub fn Recipient::new(BytesView) -> Self raise @spec.Refused
+pub fn Recipient::of(StringView) -> Self raise @spec.Refused
+pub fn Recipient::tag(Self, BytesView) -> Bytes
+pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &@moonseed.Source) -> @spec.Stanza raise @spec.Refused
+pub impl @spec.Recipient for Recipient
+
+// Type aliases
+
+// Traits

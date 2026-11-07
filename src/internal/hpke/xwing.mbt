@@ -1,44 +1,28 @@
 // Copyright 2026 Leo Cheng
 // SPDX-License-Identifier: Apache-2.0
 
-///|
-/// The three sizes of MLKEM768-X25519: an ML-KEM-768 encapsulation key with an
-/// X25519 public key behind it, an ML-KEM-768 ciphertext with an X25519 share,
-/// and the seed both halves are expanded from.
-///
-/// They are written as sums rather than as the numbers they come to, because
-/// the numbers are the two schemes' and a reader should be able to check them
-/// against FIPS 203 without a calculator.
-pub let public_size : Int32 = 1184 + 32
-
-///|
-pub let enc_size : Int32 = 1088 + 32
-
-///|
-pub let seed_size : Int32 = 32
+// MLKEM768-X25519 (X-Wing): an ML-KEM-768 encapsulation key with an X25519
+// public key behind it, combined into one secret with SHA3-256 rather than
+// negotiated.
+//
+// This KEM is its own combiner — unlike the DHKEM of RFC 9180, it hands HPKE a
+// secret directly — so what follows is the whole of it rather than a wrapper
+// around an extraction.
 
 ///|
 /// The string the combiner hashes after the two secrets and the two public
 /// values. It is X-Wing's, not this library's, and it is what stops a secret
 /// from one combination being read as a secret from another.
-let label : Bytes = b"\\.//^\\"
-
-///|
-/// One encapsulation: what goes into the stanza, and the secret both sides come
-/// out with.
-pub(all) struct Encapsulated {
-  enc : Bytes
-  shared : Bytes
-}
+let xwing_label : Bytes = b"\\.//^\\"
 
 ///|
 /// The public key for a seed: the ML-KEM half and the X25519 half, in that
 /// order.
-pub fn public_of(seed : BytesView) -> Bytes raise @spec.Refused {
+pub fn xwing_public_of(seed : BytesView) -> Bytes raise @spec.Refused {
   if seed.length() != seed_size {
     raise @spec.Refused::Key(want=seed_size, got=seed.length())
   }
-  let material = expand_seed(seed)
+  let material = @sha3.shake256(seed, 96)
   let key = @mlkem.PrivateKey::from_seed(
     kind=@mlkem.K768,
     material.clamped_view(end=64),
@@ -52,12 +36,12 @@ pub fn public_of(seed : BytesView) -> Bytes raise @spec.Refused {
 ///|
 /// Encapsulate to a public key, drawing the ML-KEM message and the X25519
 /// ephemeral scalar from `random` in that order.
-pub fn encapsulate(
+pub fn xwing_encapsulate(
   public : BytesView,
   random : &@moonseed.Source,
 ) -> Encapsulated raise @spec.Refused {
-  if public.length() != public_size {
-    raise @spec.Refused::Key(want=public_size, got=public.length())
+  if public.length() != public_size(XWing) {
+    raise @spec.Refused::Key(want=public_size(XWing), got=public.length())
   }
   let pq = @mlkem.PublicKey::new(
     kind=@mlkem.K768,
@@ -79,19 +63,19 @@ pub fn encapsulate(
 
 ///|
 /// The secret behind an encapsulation, from the seed the identity was made of.
-pub fn decapsulate(
+pub fn xwing_decapsulate(
   seed : BytesView,
   enc : BytesView,
 ) -> Bytes raise @spec.Refused {
   if seed.length() != seed_size {
     raise @spec.Refused::Key(want=seed_size, got=seed.length())
   }
-  if enc.length() != enc_size {
+  if enc.length() != enc_size(XWing) {
     raise @spec.Refused::Stanza(
       want="a 1120-byte MLKEM768-X25519 encapsulation",
     )
   }
-  let material = expand_seed(seed)
+  let material = @sha3.shake256(seed, 96)
   let key = @mlkem.PrivateKey::from_seed(
     kind=@mlkem.K768,
     material.clamped_view(end=64),
@@ -108,13 +92,10 @@ pub fn decapsulate(
 }
 
 ///|
-/// SHAKE256 of the seed, as the ninety-six bytes the two halves are cut from:
-/// the ML-KEM seed of FIPS 203 §7.1 first, then the X25519 scalar.
-///
-/// It is one stream and not two hashes because that is how X-Wing defines the
-/// key, and a key that expands differently is a different key.
-fn expand_seed(seed : BytesView) -> Bytes {
-  @sha3.shake256(seed, 96)
+/// A seed from a caller's bytes, by `DeriveKeyPair` of the one-stage KDF this
+/// KEM defines: SHAKE256 over the input, the suite, and the label.
+pub fn xwing_from_seed(seed : BytesView) -> Bytes {
+  labeled_derive(XWing, seed, "DeriveKeyPair", seed_size)
 }
 
 ///|
@@ -135,12 +116,12 @@ fn combine(
   share : BytesView,
   public : BytesView,
 ) -> Bytes {
-  let parts = @buffer.Buffer(size_hint=64 + 64 + label.length())
+  let parts = @buffer.Buffer(size_hint=64 + 64 + xwing_label.length())
   parts.write_bytes(pq)
   parts.write_bytes(x)
   parts.write_bytes(share)
   parts.write_bytes(public)
-  parts.write_bytes(label)
+  parts.write_bytes(xwing_label)
   @sha3.hash(parts.to_bytes(), kind=@sha3.Sha3_256)
 }
 
