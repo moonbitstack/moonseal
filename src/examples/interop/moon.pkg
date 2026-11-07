@@ -16,10 +16,13 @@
 pkgtype(kind: "executable")
 
 import {
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/env",
   "moonbitlang/x/fs",
   "moonbitstack/moonseal",
   "moonbitstack/moonseal/mlkem768x25519",
+  "moonbitstack/moonseal/p256tag",
+  "moonbitstack/moonseal/mlkem768p256tag",
   "moonbitstack/moonseal/scrypt",
   "moonbitstack/moonseal/spec",
   "moonbitstack/moonseal/ssh",

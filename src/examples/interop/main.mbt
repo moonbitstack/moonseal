@@ -13,6 +13,15 @@ let passphrase_prefix : String = "passphrase:"
 let work_factor : Int32 = 10
 
 ///|
+/// The prefixes a seed-borne identity is written with in this tool's own files.
+/// A tagged key has no written form in the format, so the exchange needs a way
+/// to name the seed both sides derive from.
+let tag_seed_prefix : String = "tag-seed:"
+
+///|
+let tag_pq_seed_prefix : String = "tagpq-seed:"
+
+///|
 /// One recipient, from the line that names it.
 fn recipient_of(line : String) -> &@spec.Recipient raise @spec.Refused {
   if line.has_prefix(passphrase_prefix) {
@@ -24,6 +33,14 @@ fn recipient_of(line : String) -> &@spec.Recipient raise @spec.Refused {
   }
   if line.has_prefix("ssh-") {
     let recipient : &@spec.Recipient = @ssh.Recipient::of(line)
+    return recipient
+  }
+  if line.has_prefix("age1tagpq1") {
+    let recipient : &@spec.Recipient = @mlkem768p256tag.Recipient::of(line)
+    return recipient
+  }
+  if line.has_prefix("age1tag1") {
+    let recipient : &@spec.Recipient = @p256tag.Recipient::of(line)
     return recipient
   }
   if line.has_prefix("age1pq1") {
@@ -40,6 +57,18 @@ fn identity_of(text : String) -> &@spec.Identity raise @spec.Refused {
   if text.has_prefix(passphrase_prefix) {
     let identity : &@spec.Identity = @scrypt.Identity::new(
       text.clamped_view(start=passphrase_prefix.length()).to_owned(),
+    )
+    return identity
+  }
+  if text.has_prefix(tag_pq_seed_prefix) {
+    let identity : &@spec.Identity = @mlkem768p256tag.Identity::from_seed(
+      @utf8.encode(text.clamped_view(start=tag_pq_seed_prefix.length())),
+    )
+    return identity
+  }
+  if text.has_prefix(tag_seed_prefix) {
+    let identity : &@spec.Identity = @p256tag.Identity::from_seed(
+      @utf8.encode(text.clamped_view(start=tag_seed_prefix.length())),
     )
     return identity
   }

@@ -92,8 +92,8 @@ jobs:
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       # The two implementations this library has to agree with, at the versions
-      # it was tested against: age grew the post-quantum recipient in 1.3, and
-      # rage has it not yet.
+      # it was tested against: age grew the post-quantum recipient in 1.3, and the
+      # tagged ones in 1.3.2, which rage has not grown at all.
       - name: install age and rage
         run: |
           curl -fsSL https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-linux-amd64.tar.gz | tar xz -C /tmp
@@ -102,6 +102,19 @@ jobs:
           sudo install /tmp/rage/rage /tmp/rage/rage-keygen /usr/local/bin/
           age --version
           rage --version
+
+      # A tagged recipient is opened by a plugin rather than by age itself, and
+      # the only plugin that holds such an identity is the one age's own tests
+      # build. It is Go, so this is the one place Go is needed.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      - name: install the plugin age's tests use for tagged recipients
+        run: |
+          go install filippo.io/age/tag/internal/age-plugin-tagtest@v1.3.2
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+          "$HOME/go/bin/age-plugin-tagtest" --help || true
 
       - name: build the interop example
         run: |
