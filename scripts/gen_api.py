@@ -16,7 +16,19 @@ SRC = ROOT / "src"
 PAGE = ROOT / "docs" / "index.html"
 
 # The container first, then its contract, then the parts it is made of.
-PACKAGES = ["", "spec", "header", "stream", "armor", "x25519", "scrypt", "ssh", "mlkem768x25519"]
+PACKAGES = [
+    "",
+    "spec",
+    "header",
+    "stream",
+    "armor",
+    "x25519",
+    "scrypt",
+    "ssh",
+    "mlkem768x25519",
+    "p256tag",
+    "mlkem768p256tag",
+]
 
 # Methods `derive` adds. They are in the derive clause already.
 DERIVED = {"equal", "not_equal", "to_repr", "output", "to_string", "hash"}

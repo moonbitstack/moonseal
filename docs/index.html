@@ -38,10 +38,10 @@
     <div class="hero-text">
       <div class="kicker">age-encryption.org/v1 · MoonBit</div>
       <h1 class="lede">Seal a file for several people at once;<br><em>any one of them opens it.</em></h1>
-      <p class="tagline">A sealed file is a header of recipient stanzas over a streaming payload. A passphrase, a public key, an SSH key the reader already has, or a post-quantum hybrid — all in one header. No key ring, no trust model, no key server: a format, not a vault.</p>
+      <p class="tagline">A sealed file is a header of recipient stanzas over a streaming payload. A passphrase, a public key, an SSH key the reader already has, a post-quantum hybrid, or a key inside a token — all in one header. No key ring, no trust model, no key server: a format, not a vault.</p>
       <div class="stats">
         <div class="chip"><div class="n">v1</div><div class="l">specification</div></div>
-        <div class="chip"><div class="n">5</div><div class="l">recipient types</div></div>
+        <div class="chip"><div class="n">7</div><div class="l">recipient types</div></div>
         <div class="chip"><div class="n">64 KiB</div><div class="l">payload chunk</div></div>
         <div class="chip"><div class="n" style="font-size:40px !important; line-height:1 !important;">∞</div><div class="l">readers, one file</div></div>
       </div>
@@ -95,6 +95,8 @@
       <button data-c='seal --pass "correct horse" "hello, sealed world"'>seal (passphrase)</button>
       <button data-c='open --pass "correct horse"'>open (passphrase)</button>
       <button data-c='seal --pq "for after the quantum"'>seal (post-quantum)</button>
+      <button data-c='keygen --tag'>keygen (tagged)</button>
+      <button data-c='seal --tag "for the key on the desk"'>seal (tagged)</button>
       <button data-c='inspect'>inspect</button>
       <button data-c='recipients'>recipients</button>
       <button data-c='armor'>armor</button>
@@ -104,7 +106,7 @@
       <button data-c='api'>api</button>
     </div>
   </div>
-  <p class="hint">Commands: help · install · keygen [--pq] · seal --pass "PW" "MSG" [--work N] · seal --to age1… "MSG" · seal --me "MSG" · seal --pq "MSG" · seal --ssh "ssh-ed25519 …" "MSG" · open --pass "PW" · open --with AGE-SECRET-KEY-… · open --me · open --pq · inspect · recipients · ssh · armor · stream · custom · api · clear</p>
+  <p class="hint">Commands: help · install · keygen [--pq | --tag | --tagpq] · seal --pass "PW" "MSG" [--work N] · seal --to age1… "MSG" · seal --me "MSG" · seal --pq "MSG" · seal --tag "MSG" · seal --ssh "ssh-ed25519 …" "MSG" · open --pass "PW" · open --with AGE-SECRET-KEY-… · open --me · open --pq · open --tag · inspect · recipients · ssh · tag · armor · stream · custom · api · clear</p>
 
   <!-- 镂空花格 divider -->
   <div class="lattice-div" aria-hidden="true"></div>
@@ -128,6 +130,8 @@
       <a href="#pkg-scrypt">scrypt</a>
       <a href="#pkg-ssh">ssh</a>
       <a href="#pkg-mlkem768x25519">mlkem768x25519</a>
+      <a href="#pkg-p256tag">p256tag</a>
+      <a href="#pkg-mlkem768p256tag">mlkem768p256tag</a>
 <!-- /generated:nav -->
      </div>
     </nav>
@@ -340,6 +344,56 @@
         <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1pq1…</code>.</div></div>
         <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
         <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a seed is. One thirty-two-byte seed is the whole of a secret: the ML-KEM key and the X25519 scalar are both expanded from it.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-p256tag">
+        <h3>p256tag</h3>
+        <p class="desc">The tagged recipient type: a P-256 point behind four bytes of tag.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key: the scalar a device would hold, and nothing else.</div><div class="d">The format defines no written form for these — a tagged recipient is the public half of something that lives in hardware — so there is no <code>code</code> and no <code>of</code>. Where the scalar is kept, and how it is named, are the plugin's business; this type is the arithmetic.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::from_seed(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A scalar derived from a seed, by HPKE's <code>DeriveKeyPair</code>.</div><div class="d">Nothing here needs it — a device has a key already — but two implementations that each hold a seed need to agree on the key it stands for, and this is the derivation HPKE defines for exactly that.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new scalar, drawn from <code>random</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw scalar, for handing to whatever does keep it.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of scalar.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key: a P-256 point, and the ability to seal a file key to it.</div><div class="d">Both SEC 1 forms are kept: the compressed one, because that is what the format writes and what the tag hashes, and the uncompressed one, because that is what HPKE hashes into its key schedule. A recipient is read once and used once per file, so the change of shape happens at the door rather than in the middle of sealing.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1tag1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another: the point compressed, which is what the bech32 string carries.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the thirty-three bytes of a compressed point.</div><div class="d">A point that is not on the curve is refused here rather than at sealing time: a recipient is a name for a device, and a name that addresses nothing should not survive being read.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1tag1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::tag(Self, BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The four-byte tag that names this key in a stanza, for the encapsulation the sender drew.</div><div class="d">Exposed because a device that holds the key can compute it too: a hardware key that answers only when asked is asked once per stanza, and the tag is what lets it answer "not mine" without unwrapping anything.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let point_size : Int32</div><div class="d">How long a public key is as it travels: a P-256 point in the compressed SEC 1 form, one byte of parity and thirty-two bytes of coordinate.</div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a secret key is: a P-256 scalar, in [1, n).</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-mlkem768p256tag">
+        <h3>mlkem768p256tag</h3>
+        <p class="desc">The tagged recipient type that has to outlive a quantum computer: an ML-KEM-768 key hybridised with a P-256 point, under HPKE.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key: one seed, from which the ML-KEM key and the P-256 scalar are both expanded.</div><div class="d">As with the plain tagged type, the format defines no written form for it. A device that keeps a seed of its own and expands it the way HPKE does has an identity here without inventing an encoding.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::from_seed(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A seed derived from a caller's bytes, by HPKE's <code>DeriveKeyPair</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new seed, drawn from <code>random</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw seed, for handing to whatever does keep it.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of seed.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key: an ML-KEM-768 encapsulation key and a P-256 point, as one 1249-byte string, which is the shape the hybrid KEM takes.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1tagpq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the 1249 bytes of a public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1tagpq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::tag(Self, BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The four-byte tag that names this key in a stanza, for the encapsulation the sender drew.</div><div class="d">Only the P-256 half is hashed. The ML-KEM half may be sealed inside the device, unreadable without it, and a tag that cannot be computed without the device would be no use to the reader that has it.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let public_size : Int32</div><div class="d">How long a public key is: an ML-KEM-768 encapsulation key with an uncompressed P-256 point behind it, written as one string.</div><div class="d">It is written as a sum because the numbers are FIPS 203's and the curve's, and a reader should be able to check them without a calculator.</div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a secret key is: one thirty-two-byte seed, from which both halves are expanded.</div></div>
       </div>
 <!-- /generated:api -->
     </div>

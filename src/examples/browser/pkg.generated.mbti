@@ -8,7 +8,15 @@ pub fn keygen() -> String
 
 pub fn keygen_pq() -> String
 
+pub fn keygen_tag() -> String
+
+pub fn keygen_tag_pq() -> String
+
 pub fn open_passphrase(String, String) -> String
+
+pub fn open_tag(String, String) -> String
+
+pub fn open_tag_pq(String, String) -> String
 
 pub fn open_with(String, String) -> String
 

@@ -28,6 +28,8 @@ const WORK = 12;
 
 let KEY = null;
 let PQ = null;
+let TAG = null;
+let TAGPQ = null;
 let LAST = null;
 
 // A row of coloured spans. A row of a file keeps its width and scrolls.
@@ -77,6 +79,8 @@ function flags(args) {
     else if (a === "--work") f.work = Number(args[++i]);
     else if (a === "--me") f.me = true;
     else if (a === "--pq") f.pq = true;
+    else if (a === "--tag") f.tag = true;
+    else if (a === "--tagpq") f.tagpq = true;
     else if (a === "--ssh") f.ssh = args[++i];
     else f.rest.push(a);
   }
@@ -88,16 +92,18 @@ const yieldFrame = () => new Promise((r) => setTimeout(r, 20));
 const HELP = [
   ["install", "how to add the library"],
   ["keygen [--pq]", "make an X25519 or post-quantum identity"],
+  ["keygen --tag | --tagpq", "make a key of the sort a hardware token holds"],
   ['seal --pass "PW" "MSG"', "seal to a passphrase (--work N for 2^N)"],
   ['seal --to age1… "MSG"', "seal to one or more public keys"],
   ['seal --me "MSG"', "seal to the keygen key"],
   ['seal --pq "MSG"', "seal to the post-quantum key"],
+  ['seal --tag | --tagpq "MSG"', "seal to a tagged key"],
   ['seal --ssh "ssh-ed25519 …" "MSG"', "seal to an SSH public key"],
   ['open --pass "PW"', "open the last file"],
   ["open --with AGE-SECRET-KEY-…", "open with a secret key, of either kind"],
-  ["open --me | --pq", "open with a keygen key"],
+  ["open --me | --pq | --tag | --tagpq", "open with a keygen key"],
   ["inspect", "read the last file's header"],
-  ["recipients | ssh | armor | stream | custom", "explain a feature"],
+  ["recipients | ssh | tag | armor | stream | custom", "explain a feature"],
   ["api", "jump to the API reference"],
   ["clear", "empty the screen"],
 ];
@@ -121,8 +127,9 @@ const CMDS = {
   recipients() {
     line(["dm", "One file, many readers. Address it to a list of recipients:"]);
     line(["cr", "seal([alice.public(), bob.public()], plain, random=@system.source)"]);
-    line(["dm", "Five kinds of reader travel in the same header: an age1… key, a passphrase,"]);
-    line(["dm", "an ssh-ed25519 or ssh-rsa key, and the age1pq1… post-quantum hybrid."]);
+    line(["dm", "Seven kinds of reader travel in the same header: an age1… key, a passphrase,"]);
+    line(["dm", "an ssh-ed25519 or ssh-rsa key, the age1pq1… post-quantum hybrid, and the two"]);
+    line(["dm", "tagged types a hardware token answers to."]);
     line(["dm", "A passphrase stanza must stand alone: mixing it with a public key is refused."]);
     line(["dm", "Any single identity on the list opens the whole file on its own. Try "], ["cm", "seal --to age1… --to age1… \"MSG\""], ["dm", "."]);
   },
@@ -132,6 +139,16 @@ const CMDS = {
     line(["dm", "The stanza carries the first four bytes of the key's SHA-256 as a tag, so a reader"]);
     line(["dm", "can skip stanzas that are not worth a decryption. Run "], ["cm", "inspect"], ["dm", " after sealing."]);
     line(["dm", "Opening needs the private key file: "], ["cm", "@ssh.Identity::of(openai_private_key_text)"], ["dm", "."]);
+  },
+  tag() {
+    line(["dm", "A key in a token or a smart card never leaves it. A tagged recipient is how such"]);
+    line(["dm", "a device is addressed: four bytes that name the key, so it can be told this file is"]);
+    line(["dm", "not its own without being unlocked for every stanza in the header."]);
+    line(["cr", "seal --tag \"for the key on the desk\""]);
+    line(["dm", "The tag is a price as well: an age1… recipient hides who it is for, an age1tag1…"]);
+    line(["dm", "one does not. Run "], ["cm", "keygen --tag"], ["dm", ", then "], ["cm", "inspect"], ["dm", " to see the tag travel."]);
+    line(["dm", "age1tagpq1… is the same with an ML-KEM-768 key in front, for a device that also has"]);
+    line(["dm", "to outlive a quantum computer."]);
   },
   armor() {
     line(["dm", "Somewhere a file has to survive an email. The armor writes the same bytes as:"]);
@@ -158,6 +175,17 @@ const CMDS = {
     line(["dm", "→ the API reference is below."]);
   },
   async keygen(args) {
+    if (args[0] === "--tag" || args[0] === "--tagpq") {
+      const pq = args[0] === "--tagpq";
+      const value = await call(pq ? "keygen_tag_pq" : "keygen_tag");
+      if (pq) TAGPQ = value;
+      else TAG = value;
+      line(["ok", `tagged identity generated (${pq ? "ML-KEM-768 with P-256" : "P-256"}), kept in this tab only`]);
+      line(["dm", "  secret: "], ["am", `${value.secret.slice(0, 24)}…`], ["dm", `  (${value.secret.length} hex characters)`]);
+      line(["dm", "  public: "], ["cm", `${value.public.slice(0, 28)}…`], ["dm", `  (${value.public.length} characters)`]);
+      line(["dm", "try: "], ["cr", `seal ${args[0]} "for the key on the desk"`], ["dm", "  then  "], ["cr", `open ${args[0]}`]);
+      return;
+    }
     if (args[0] === "--pq") {
       PQ = await call("keygen_pq");
       line(["ok", "post-quantum identity generated: one 32-byte seed, two key halves"]);
@@ -181,10 +209,18 @@ const CMDS = {
       say(["dm", 'seal --pass "***" "'], ["cr", message], ["dm", `"  · scrypt 2^${work}`]);
       await yieldFrame();
       LAST = await call("seal_passphrase", f.pass, message, work);
-    } else if (f.me || f.pq || f.ssh || f.to.length > 0) {
+    } else if (f.me || f.pq || f.tag || f.tagpq || f.ssh || f.to.length > 0) {
       if (f.me && !KEY) return err("no key yet: run keygen first");
       if (f.pq && !PQ) return err("no post-quantum key yet: run keygen --pq first");
-      const keys = [...f.to, ...(f.me ? [KEY.public] : []), ...(f.pq ? [PQ.public] : [])];
+      if (f.tag && !TAG) return err("no tagged key yet: run keygen --tag first");
+      if (f.tagpq && !TAGPQ) return err("no hybrid tagged key yet: run keygen --tagpq first");
+      const keys = [
+        ...f.to,
+        ...(f.me ? [KEY.public] : []),
+        ...(f.pq ? [PQ.public] : []),
+        ...(f.tag ? [TAG.public] : []),
+        ...(f.tagpq ? [TAGPQ.public] : []),
+      ];
       if (f.ssh) {
         // A key line carries a comment after the key; only the first two words
         // are the key, and the console passes them on as one string.
@@ -193,7 +229,7 @@ const CMDS = {
       say(["dm", "seal to "], ["cm", keys.map((k) => `${k.slice(0, 12)}…`).join(", ")], ["dm", ' "'], ["cr", message], ["dm", '"']);
       LAST = await call("seal_to", keys.join(" "), message);
     } else {
-      return err('seal needs --pass "PW", --to age1…, --me, --pq, or --ssh');
+      return err('seal needs --pass "PW", --to age1…, --me, --pq, --tag, --tagpq, or --ssh');
     }
     line(["ok", "sealed →"]);
     printFile(LAST);
@@ -218,8 +254,16 @@ const CMDS = {
       if (!PQ) return err("no post-quantum key: run keygen --pq first");
       say(["dm", "open --pq"]);
       plain = await call("open_with", PQ.secret, LAST);
+    } else if (f.tag) {
+      if (!TAG) return err("no tagged key: run keygen --tag first");
+      say(["dm", "open --tag"]);
+      plain = await call("open_tag", TAG.secret, LAST);
+    } else if (f.tagpq) {
+      if (!TAGPQ) return err("no hybrid tagged key: run keygen --tagpq first");
+      say(["dm", "open --tagpq"]);
+      plain = await call("open_tag_pq", TAGPQ.secret, LAST);
     } else {
-      return err('open needs --pass "PW", --with AGE-SECRET-KEY-…, --me, or --pq');
+      return err('open needs --pass "PW", --with AGE-SECRET-KEY-…, --me, --pq, --tag, or --tagpq');
     }
     line(["ok", "opened → "], ["cr", plain]);
   },

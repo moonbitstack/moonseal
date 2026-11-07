@@ -67,6 +67,31 @@ pub fn keygen_pq() -> String {
 }
 
 ///|
+/// A fresh tagged identity: the scalar a device would hold, in hex, and the
+/// recipient a sender writes.
+pub fn keygen_tag() -> String {
+  result(fn() raise @spec.Refused {
+    let me = @p256tag.Identity::generate(random=@system.source)
+    {
+      "secret": Json::string(@base16.encode(me.key())),
+      "public": Json::string(me.public().code()),
+    }
+  })
+}
+
+///|
+/// The same for the hybrid tagged type, whose secret is one seed.
+pub fn keygen_tag_pq() -> String {
+  result(fn() raise @spec.Refused {
+    let me = @mlkem768p256tag.Identity::generate(random=@system.source)
+    {
+      "secret": Json::string(@base16.encode(me.key())),
+      "public": Json::string(me.public().code()),
+    }
+  })
+}
+
+///|
 /// `message` sealed to a passphrase at work factor `log_n`, as armor.
 pub fn seal_passphrase(
   passphrase : String,
@@ -92,6 +117,14 @@ pub fn seal_passphrase(
 fn recipient_of(key : String) -> &@spec.Recipient raise @spec.Refused {
   if key.has_prefix("ssh-") {
     let recipient : &@spec.Recipient = @ssh.Recipient::of(key)
+    return recipient
+  }
+  if key.has_prefix("age1tagpq1") {
+    let recipient : &@spec.Recipient = @mlkem768p256tag.Recipient::of(key)
+    return recipient
+  }
+  if key.has_prefix("age1tag1") {
+    let recipient : &@spec.Recipient = @p256tag.Recipient::of(key)
     return recipient
   }
   if key.has_prefix("age1pq1") {
@@ -144,6 +177,32 @@ pub fn open_with(secrets : String, armored : String) -> String {
         identities.push(identity)
       }
     }
+    text(@moonseal.open_armored(identities, armored))
+  })
+}
+
+///|
+/// `armored` opened with a tagged identity, written as the hex of its scalar.
+pub fn open_tag(secret : String, armored : String) -> String {
+  result(fn() raise @spec.Refused {
+    let scalar = @base16.decode(secret) catch {
+      _ => raise @spec.Refused::Stanza(want="a hex scalar")
+    }
+    let identity : &@spec.Identity = @p256tag.Identity::new(scalar)
+    let identities : Array[&@spec.Identity] = [identity]
+    text(@moonseal.open_armored(identities, armored))
+  })
+}
+
+///|
+/// The same, with the seed the hybrid tagged identity is made of.
+pub fn open_tag_pq(seed : String, armored : String) -> String {
+  result(fn() raise @spec.Refused {
+    let material = @base16.decode(seed) catch {
+      _ => raise @spec.Refused::Stanza(want="a hex seed")
+    }
+    let identity : &@spec.Identity = @mlkem768p256tag.Identity::new(material)
+    let identities : Array[&@spec.Identity] = [identity]
     text(@moonseal.open_armored(identities, armored))
   })
 }
