@@ -39,21 +39,21 @@ fn pool() -> @moonseed.Replay {
 ///|
 test "interop: a tagged file age sealed opens here" {
   let (classic, _) = readers()
-  let plain = @moonseal.open(classic, file(@tag.classic)) catch {
+  let plain = @moonseal.open(classic, file(@tagged.classic)) catch {
     error => fail("age's tagged file does not open: \{error}")
   }
-  assert_eq(@hex.encode(@sha2.hash(plain)), @tag.digest)
-  assert_eq(plain, @tag.plain)
+  assert_eq(@hex.encode(@sha2.hash(plain)), @tagged.digest)
+  assert_eq(plain, @tagged.plain)
 }
 
 ///|
 test "interop: a hybrid tagged file age sealed opens here" {
   let (_, hybrid) = readers()
-  let plain = @moonseal.open(hybrid, file(@tag.hybrid)) catch {
+  let plain = @moonseal.open(hybrid, file(@tagged.hybrid)) catch {
     error => fail("age's hybrid tagged file does not open: \{error}")
   }
-  assert_eq(@hex.encode(@sha2.hash(plain)), @tag.digest)
-  assert_eq(plain, @tag.plain)
+  assert_eq(@hex.encode(@sha2.hash(plain)), @tagged.digest)
+  assert_eq(plain, @tagged.plain)
 }
 
 ///|
@@ -63,7 +63,7 @@ test "interop: the wrong tagged identity opens neither file" {
   }
   let readers : Array[&@spec.Identity] = [other]
   let refused = try {
-    ignore(@moonseal.open(readers, file(@tag.classic)))
+    ignore(@moonseal.open(readers, file(@tagged.classic)))
     false
   } catch {
     @spec.Refused::NoMatch => true

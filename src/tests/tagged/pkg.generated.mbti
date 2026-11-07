@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbitstack/moonseal/tests/tag"
+package "moonbitstack/moonseal/tests/tagged"
 
 // Values
 pub let classic : String
