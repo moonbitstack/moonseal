@@ -1,6 +1,6 @@
 name = "moonbitstack/moonseal"
 
-version = "0.1.4"
+version = "0.1.5"
 
 readme = "README.md"
 
@@ -62,7 +62,7 @@ source = "src"
 
 import {
   "moonbitlang/x@0.5.1",
-  "moonbitstack/mooncrypt@0.4.12",
-  "moonbitstack/moonseed@0.1.1",
-  "moonbitstack/moonbase@0.4.3",
+  "moonbitstack/mooncrypt@0.4.13",
+  "moonbitstack/moonseed@0.1.3",
+  "moonbitstack/moonbase@0.4.4",
 }
