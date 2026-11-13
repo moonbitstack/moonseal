@@ -42,7 +42,7 @@ test "interop: a tagged file age sealed opens here" {
   let plain = @moonseal.open(classic, file(@tagged.classic)) catch {
     error => fail("age's tagged file does not open: \{error}")
   }
-  assert_eq(@hex.encode(@sha2.hash(plain)), @tagged.digest)
+  assert_eq(@base16.encode(@sha2.hash(plain)), @tagged.digest)
   assert_eq(plain, @tagged.plain)
 }
 
@@ -52,7 +52,7 @@ test "interop: a hybrid tagged file age sealed opens here" {
   let plain = @moonseal.open(hybrid, file(@tagged.hybrid)) catch {
     error => fail("age's hybrid tagged file does not open: \{error}")
   }
-  assert_eq(@hex.encode(@sha2.hash(plain)), @tagged.digest)
+  assert_eq(@base16.encode(@sha2.hash(plain)), @tagged.digest)
   assert_eq(plain, @tagged.plain)
 }
 

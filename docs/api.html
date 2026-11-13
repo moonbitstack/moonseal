@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>moonseal — API reference</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a120b'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23d9a441'/%3E%3Cpath d='M10 13h12v6H10z' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3Cpath d='M10 13l6 5 6-5' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3C/svg%3E"/>
+<link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wm">
+    <svg viewBox="0 0 32 32">
+      <defs><radialGradient id="lg" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#4a3320"/><stop offset="1" stop-color="#231710"/></radialGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="url(#lg)" stroke="#c8a35a" stroke-width="1.1"/>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1" transform="translate(0,1)"/>
+      <path d="M9 13h14v6H9z" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+      <path d="M9 13l7 5 7-5" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+    </svg>
+    moonseal
+  </div>
+  <nav class="top">
+    <a href="index.html#home">Home</a>
+    <a href="guide.html">Guide</a>
+    <a href="api.html">API</a>
+    <a href="index.html#console">Console</a>
+    <a class="gh" href="https://github.com/moonbitstack/moonseal" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.49-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.81.06 1.23.83 1.23.83.72 1.23 1.88.88 2.34.67.07-.52.28-.88.51-1.08-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.52.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <h2 class="section-title" id="api">API reference</h2>
+  <p class="section-sub">Every public type and function, grouped by package. Names match the library exactly.</p>
+
+  <div class="api-grid">
+    <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+    <nav class="api-nav">
+     <div class="api-nav-inner">
+      <div class="h">Packages</div>
+<!-- generated:nav -->
+      <a href="#pkg-moonseal">moonseal</a>
+      <a href="#pkg-spec">spec</a>
+      <a href="#pkg-header">header</a>
+      <a href="#pkg-stream">stream</a>
+      <a href="#pkg-armor">armor</a>
+      <a href="#pkg-x25519">x25519</a>
+      <a href="#pkg-scrypt">scrypt</a>
+      <a href="#pkg-ssh">ssh</a>
+      <a href="#pkg-mlkem768x25519">mlkem768x25519</a>
+      <a href="#pkg-p256tag">p256tag</a>
+      <a href="#pkg-mlkem768p256tag">mlkem768p256tag</a>
+<!-- /generated:nav -->
+     </div>
+    </nav>
+
+    <div class="api-body">
+<!-- generated:api -->
+      <div class="pkg" id="pkg-moonseal">
+        <h3>moonseal</h3>
+        <p class="desc">Sealing a file for one or several readers, and opening it again.</p>
+        <div class="fn"><div class="sig">pub(open) trait Sink {
+  fn write(Self, bytes~ : BytesView) -&gt; Unit raise @spec.Refused
+}</div><div class="d">Where bytes go. It may be called with small pieces, and it is called in the order the file is written.</div></div>
+        <div class="fn"><div class="sig">pub(open) trait Source {
+  fn read(Self, limit~ : Int32) -&gt; Bytes raise @spec.Refused
+}</div><div class="d">Where bytes come from. A file, a socket, a buffer: anything that can hand over a run of bytes and say when it has no more.</div><div class="d"><code>read</code> may return fewer bytes than it was asked for; an empty answer means the end. The reader in this library asks for a chunk at a time and keeps asking until it has what it needs or the source is spent.</div></div>
+        <div class="fn"><div class="sig">pub struct BytesSink {
+  // private fields
+}</div><div class="d">A sink over a buffer, for the same reason.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::bytes(Self) -&gt; <span class="r">Bytes</span></div><div class="d">Everything written so far, as one byte string.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn BytesSink::write(Self, bytes~ : BytesView) -&gt; <span class="r">Unit raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct BytesSource {
+  // private fields
+}</div><div class="d">A source over bytes that are already in memory, which is what a caller with a file in a buffer wants, and what the tests use.</div></div>
+        <div class="fn"><div class="sig">pub fn BytesSource::new(BytesView) -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn BytesSource::read(Self, limit~ : Int32) -&gt; <span class="r">Bytes raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub fn drain(&amp;Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">The whole of a source, which is what a caller does when the input is small enough to hold and they would rather see it than stream it.</div></div>
+        <div class="fn"><div class="sig">pub fn open(Array[&amp;@spec.Identity], BytesView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open a file addressed to any one of <code>identities</code>.</div><div class="d">The header is checked before the payload is touched: a stanza is opened to recover the file key, the MAC over the header is verified with it, and only then does a chunk get decrypted. A header that does not verify means somebody edited the list of who can read the file, and no part of the payload is worth looking at after that.</div></div>
+        <div class="fn"><div class="sig">pub fn open_armored(Array[&amp;@spec.Identity], StringView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open an armored block.</div></div>
+        <div class="fn"><div class="sig">pub fn open_stream(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open a file from a source, writing the plaintext to a sink as it is authenticated. Nothing is written until the header has verified.</div></div>
+        <div class="fn"><div class="sig">pub fn open_stream_armored(&amp;Sink, Array[&amp;@spec.Identity], &amp;Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Open an armored text block from a source.</div></div>
+        <div class="fn"><div class="sig">pub fn seal(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Seal <code>plain</code> for <code>recipients</code>, and give back the file.</div><div class="d">The file key, every stanza's ephemeral material and the payload nonce come out of <code>random</code>, in that order: <code>@system.source</code> from <code>moonseed/system</code> in a program, a <code>Replay</code> of fixed bytes in a test that wants the same file twice. A source that fails is a refusal, and it arrives before the first byte is written.</div><div class="d">How much a file draws: sixteen bytes for the file key, then thirty-two for each X25519 recipient and sixteen for each scrypt recipient, then sixteen for the payload nonce.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_armored(Array[&amp;@spec.Recipient], BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">String raise @spec.Refused</span></div><div class="d">The same as <code>seal</code>, written out as an armored text block.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">The same file, written a piece at a time: nothing larger than one chunk is ever held, which is what makes a file bigger than memory something this library can seal.</div></div>
+        <div class="fn"><div class="sig">pub fn seal_stream_armored(&amp;Sink, Array[&amp;@spec.Recipient], &amp;Source, random~ : &amp;@moonseed.Source) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Seal to a sink, as an armored text block. The text is written in the same pieces the file is, so the whole of it never exists at once either.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-spec">
+        <h3>spec</h3>
+        <p class="desc">The contract the rest of this library is written against: the error type, the recipient stanza, and the two traits a recipient type implements.</p>
+        <div class="fn"><div class="sig">pub(open) trait Identity {
+  fn unwrap(Self, stanza~ : Stanza) -&gt; Bytes? raise Refused
+}</div><div class="d">A recipient type, from the decrypting side: given a stanza, either the file key or <code>None</code> for "not mine, try the next one".</div><div class="d">A stanza of a type this identity does not implement is <code>None</code>, and so is one that is well formed but sealed to another key. A stanza that claims to be this type and is malformed is a refusal, because at that point the file is broken rather than addressed to somebody else.</div></div>
+        <div class="fn"><div class="sig">pub(open) trait Recipient {
+  fn wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; Stanza raise Refused
+}</div><div class="d">A recipient type, from the encrypting side: it takes the file key and wraps it into a stanza only the matching identity can unwrap.</div><div class="d"><code>random</code> is where the ephemeral material comes from. It is passed rather than found so that the one source a caller chose serves every stanza of a file, and so that a <code>Replay</code> seals the same file twice.</div></div>
+        <div class="fn"><div class="sig">pub(all) struct Stanza {
+  kind : String
+  args : Array[String]
+  body : Bytes
+}</div><div class="d">One recipient stanza: the type, the arguments after it, and the body that carries the file key wrapped for whoever holds the matching secret.</div><div class="d">A recipient type is nothing more than a name, a list of arguments it defines the meaning of, and a body; the header carries them without understanding them, which is what lets a type this library has never heard of travel through it.</div></div>
+        <div class="fn"><div class="sig">pub fn Stanza::new(kind~ : String, args~ : Array[String], body~ : Bytes) -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub(all) suberror Refused {
+  Header(at~ : Int32, want~ : String)
+  Stanza(want~ : String)
+  Mac
+  NoMatch
+  Payload(at~ : Int32)
+  Armor(at~ : Int32, want~ : String)
+  Key(want~ : Int32, got~ : Int32)
+  Random(@moonseed.Unavailable)
+  Limit(want~ : Int32, got~ : Int32)
+}</div><div class="d">Why this library would not do what it was asked.</div><div class="d">The variants are the places a file can stop being a file: the header does not say what the format says it says, a stanza of a known type does not either, the MAC over the header does not check out, no identity opened any stanza, a payload chunk did not authenticate, the text was not the armor it claimed to be, a key is not the size this format defines, the random source the caller handed in could not give what the file needs, or an input was longer than this library will read.</div><div class="d"><code>at</code> is an offset in bytes from the start of the input the call was given.</div></div>
+        <div class="fn"><div class="sig">pub fn draw(&amp;@moonseed.Source, Int32) -&gt; <span class="r">Bytes raise Refused</span></div><div class="d"><code>len</code> bytes from <code>random</code>, or the reason it had none as a refusal.</div><div class="d">A recipient type calls this for its ephemeral material, so that a failing source arrives as the one error type every call here raises.</div></div>
+        <div class="fn"><div class="sig">pub fn text_key(StringView, hrp~ : String, what~ : String) -&gt; <span class="r">Bytes raise Refused</span></div><div class="d">The bytes behind a written key whose prefix is <code>hrp</code>.</div><div class="d">The case of the string carries no meaning — bech32 allows either, and its checksum is always taken over the lowercase form — so <code>hrp</code> is compared in lowercase. A string whose checksum holds only as bech32m is named as that mistake, since it is one the caller can act on.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-header">
+        <h3>header</h3>
+        <p class="desc">The header: the part of the file that says who can open it.</p>
+        <div class="fn"><div class="sig">pub struct Header {
+  // private fields
+}</div><div class="d">A header in the shape it is written in: the stanzas, the MAC that came with them, and the exact bytes the MAC covers.</div><div class="d">The bytes are kept rather than recomputed because the MAC is defined over the bytes on the wire. Re-rendering them would be right only for canonical input, and being wrong about which input is canonical is how a file that parsed yesterday stops opening today.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::decode(BytesView) -&gt; <span class="r">(Self, Int32) raise @spec.Refused</span></div><div class="d">Read a header from the front of <code>bytes</code>, and say how many bytes it took.</div><div class="d">The count matters because the payload begins immediately after the MAC's line feed with no separator: whoever reads a header has to know exactly where it stopped.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::encode(Self, file_key~ : BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The header as it appears in a file, MAC line and all, keyed from the file key.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::new(Array[@spec.Stanza]) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A header with no MAC yet, as a sender has it.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::stanzas(Self) -&gt; <span class="r">Array[@spec.Stanza]</span></div><div class="d">The stanzas, in the order they are written.</div></div>
+        <div class="fn"><div class="sig">pub fn Header::verify(Self, file_key~ : BytesView) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Check that the MAC this header carries is the one its bytes deserve. Called before the payload is touched, because a header that does not verify is a header somebody edited.</div></div>
+        <div class="fn"><div class="sig">pub let limit : Int32</div><div class="d">How long a header this library will read before giving up.</div><div class="d">The format has no ceiling, and that is a way to make a reader allocate until it cannot: sixteen thousand stanzas of addressable text is one mebibyte, far past any file addressed to real people.</div></div>
+        <div class="fn"><div class="sig">pub let version : String</div><div class="d">The one version line this format has.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-stream">
+        <h3>stream</h3>
+        <p class="desc">The payload: one long stream cut into 64 KiB chunks, each authenticated on its own.</p>
+        <div class="fn"><div class="sig">pub struct Opener {
+  // private fields
+}</div><div class="d">A payload reader: holds the key, and checks that chunks arrive in order and that the last one says it is the last.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::chunk(Self, cipher~ : BytesView, last~ : Bool) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">Open one chunk, or refuse it. The refusal carries the offset of the chunk from the start of the payload.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::chunks(Self) -&gt; <span class="r">Int32</span></div><div class="d">How many chunks have been opened.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::done(Self) -&gt; <span class="r">Bool</span></div><div class="d">Whether the payload ended: a payload is only over once a chunk said it was the last one, so a reader that runs out of bytes first has been handed a truncated file.</div></div>
+        <div class="fn"><div class="sig">pub fn Opener::new(key~ : BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Sealer {
+  // private fields
+}</div><div class="d">A payload writer: holds the key, and remembers which chunk comes next.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::chunk(Self, plain~ : BytesView, last~ : Bool) -&gt; <span class="r">Bytes</span></div><div class="d">Seal one chunk. <code>last</code> marks the end of the payload; a payload of no bytes at all is still one chunk — an empty one — whose tag is the only thing standing between an empty file and a truncated one.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::chunks(Self) -&gt; <span class="r">Int32</span></div><div class="d">How many chunks have been sealed, which is how many the payload will hold.</div></div>
+        <div class="fn"><div class="sig">pub fn Sealer::new(key~ : BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A sealer over a payload key of thirty-two bytes.</div></div>
+        <div class="fn"><div class="sig">pub let chunk : Int32</div><div class="d">How much plaintext one chunk holds.</div></div>
+        <div class="fn"><div class="sig">pub let nonce : Int32</div><div class="d">How many bytes of nonce precede the first chunk. It is drawn once per file, and the payload key is derived from it, which is what makes two files sealed under the same recipients differ from the first byte.</div></div>
+        <div class="fn"><div class="sig">pub let tag : Int32</div><div class="d">How many bytes a chunk grows by, which is the size of an authentication tag.</div></div>
+        <div class="fn"><div class="sig">pub fn payload_key(file_key~ : BytesView, nonce~ : BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The payload key: the file key, salted with the payload nonce.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-armor">
+        <h3>armor</h3>
+        <p class="desc">ASCII armor: the same file as text, for the places a binary file cannot go.</p>
+        <div class="fn"><div class="sig">pub struct Decoder {
+  // private fields
+}</div><div class="d">A block read a piece at a time.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::finish(Self) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">The end of the text: whatever was left of a last line without its line feed, and a check that the block was closed.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::push(Self, StringView) -&gt; <span class="r">Unit raise @spec.Refused</span></div><div class="d">Feed text. Complete lines are decoded as they arrive; what has been decoded so far is available from <code>take</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Decoder::take(Self) -&gt; <span class="r">Bytes</span></div><div class="d">What has been decoded so far, and clear it.</div></div>
+        <div class="fn"><div class="sig">pub struct Encoder {
+  // private fields
+}</div><div class="d">A block written a piece at a time, so that a file larger than memory can be armored.</div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::finish(Self) -&gt; <span class="r">String</span></div><div class="d">The rest of the block: the last, shorter line if there is one, and the line that ends it. An empty input writes no body line at all, which is a block that carries no bytes rather than a block that carries an empty line.</div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::new() -&gt; <span class="r">Self</span></div></div>
+        <div class="fn"><div class="sig">pub fn Encoder::write(Self, BytesView) -&gt; <span class="r">String</span></div><div class="d">Take some bytes and give back the lines that are now complete. Nothing comes back until at least 48 bytes have arrived, which is exactly one line.</div></div>
+        <div class="fn"><div class="sig">pub let label : String</div><div class="d">The label between the dashes, which is also the name this format is known by to anything that reads PEM blocks.</div></div>
+        <div class="fn"><div class="sig">pub fn decode(StringView) -&gt; <span class="r">Bytes raise @spec.Refused</span></div><div class="d">A block back into bytes, or a refusal. See the package comment for what is allowed around the block and what is not.</div></div>
+        <div class="fn"><div class="sig">pub fn encode(BytesView) -&gt; <span class="r">String</span></div><div class="d">A block around <code>bytes</code>, as text. Every line ends in a line feed, including the last one, so that the result survives being concatenated.</div></div>
+        <div class="fn"><div class="sig">pub fn head() -&gt; <span class="r">String</span></div><div class="d">The line that opens a block, with its line feed.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-x25519">
+        <h3>x25519</h3>
+        <p class="desc">The recipient type everyone uses: a public key per reader.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>AGE-SECRET-KEY-1…</code>. Uppercase, which is how bech32 spells a secret so that it is hard to mistake for a public one.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new secret key, drawn from <code>random</code>. A secret key is thirty-two random bytes and nothing else; X25519 clamps them when it uses them.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of secret key.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>AGE-SECRET-KEY-1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key, as the thing you seal to.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1…</code>. The case of the string carries no meaning: bech32 allows either, and the checksum is taken over the lowercase one.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a public key, a secret key and a share are. X25519 has no other size.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-scrypt">
+        <h3>scrypt</h3>
+        <p class="desc">The recipient type for a passphrase: no keys, no key exchange, just a lot of memory.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A passphrase, from the decrypting side.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(StringView, max_log_n? : Int32) -&gt; <span class="r">Self</span></div><div class="d">An identity for a passphrase, and the largest work factor it will agree to run. A file is allowed to ask for a high one; a reader is allowed to say no.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A passphrase, from the encrypting side.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::log_n(Self) -&gt; <span class="r">Int32</span></div><div class="d">The work factor this recipient writes into the file.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(StringView, log_n? : Int32) -&gt; <span class="r">Self</span></div><div class="d">A recipient for a passphrase, with the work factor it should use.</div><div class="d">The work factor is a parameter rather than a constant because it is the one knob that trades a reader's time for a guesser's: raise it when the passphrase is weak or the file will outlive the hardware.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let default_log_n : Int32</div><div class="d">The work factor a file gets when nobody says otherwise: 2^18, which is 256 MiB of scratch space and about a second on the machine that wrote this.</div></div>
+        <div class="fn"><div class="sig">pub let max_log_n : Int32</div><div class="d">The largest work factor a reader will accept. Four gibibytes of scratch space is the point past which a file stops being something to open and starts being something to defend against.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-ssh">
+        <h3>ssh</h3>
+        <p class="desc">The SSH recipient types: a file sealed to a key its owner already has.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key, as the thing that opens a file.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::blob(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The public key as SSH writes it, which is what a stanza's tag hashes.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::kind(Self) -&gt; <span class="r">String</span></div><div class="d">Which kind of SSH key this is.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A secret key from the text of a key file: an OpenSSH private key, a PKCS#1 RSA key, or the PKCS#8 wrapper around one.</div><div class="d">Whatever comment and options the file carries are ignored, and so is the public key it repeats: the recipient is rebuilt from the secret, so the two halves cannot disagree.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs. It is rebuilt from the secret rather than read back out of the file it came from, so that a key and the recipient it names cannot disagree.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key, as the thing you seal to.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::blob(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The key as SSH writes it, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, which is what an <code>authorized_keys</code> line holds after its options: the type, a space, and the key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::fingerprint(Self) -&gt; <span class="r">String</span></div><div class="d">The four-byte tag that names this key in a stanza.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::kind(Self) -&gt; <span class="r">String</span></div><div class="d">Which kind of SSH key this is. </div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the key as SSH writes it: the type name, then the type's fields, all length-prefixed.</div><div class="d">A key of a type this library does not implement is refused rather than carried: a recipient type has to wrap a file key, and there is nothing to call for a key that only signs.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From an <code>authorized_keys</code> line: options first if there are any, then the type, then the base64 key, then a comment that is not read.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let min_rsa_bits : Int32</div><div class="d">The smallest RSA key this library will address a file to. Below it the modulus is what an attacker with a laptop can factor, and a stanza that claims one is a file that looks safer than it is.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-mlkem768x25519">
+        <h3>mlkem768x25519</h3>
+        <p class="desc">The post-quantum recipient type: MLKEM768-X25519, the hybrid X-Wing KEM under HPKE.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key: the seed both halves are expanded from.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, uppercase so that it is hard to mistake for a public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new seed, drawn from <code>random</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of seed.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>AGE-SECRET-KEY-PQ-1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key: an ML-KEM-768 encapsulation key and an X25519 public key, as the one 1216-byte string the hybrid KEM takes.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1pq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the 1216 bytes of a public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1pq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a seed is. One thirty-two-byte seed is the whole of a secret: the ML-KEM key and the X25519 scalar are both expanded from it.</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-p256tag">
+        <h3>p256tag</h3>
+        <p class="desc">The tagged recipient type: a P-256 point behind four bytes of tag.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key: the scalar a device would hold, and nothing else.</div><div class="d">The format defines no written form for these — a tagged recipient is the public half of something that lives in hardware — so there is no <code>code</code> and no <code>of</code>. Where the scalar is kept, and how it is named, are the plugin's business; this type is the arithmetic.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::from_seed(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A scalar derived from a seed, by HPKE's <code>DeriveKeyPair</code>.</div><div class="d">Nothing here needs it — a device has a key already — but two implementations that each hold a seed need to agree on the key it stands for, and this is the derivation HPKE defines for exactly that.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new scalar, drawn from <code>random</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw scalar, for handing to whatever does keep it.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of scalar.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key: a P-256 point, and the ability to seal a file key to it.</div><div class="d">Both SEC 1 forms are kept: the compressed one, because that is what the format writes and what the tag hashes, and the uncompressed one, because that is what HPKE hashes into its key schedule. A recipient is read once and used once per file, so the change of shape happens at the door rather than in the middle of sealing.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1tag1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another: the point compressed, which is what the bech32 string carries.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the thirty-three bytes of a compressed point.</div><div class="d">A point that is not on the curve is refused here rather than at sealing time: a recipient is a name for a device, and a name that addresses nothing should not survive being read.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1tag1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::tag(Self, BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The four-byte tag that names this key in a stanza, for the encapsulation the sender drew.</div><div class="d">Exposed because a device that holds the key can compute it too: a hardware key that answers only when asked is asked once per stanza, and the tag is what lets it answer "not mine" without unwrapping anything.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let point_size : Int32</div><div class="d">How long a public key is as it travels: a P-256 point in the compressed SEC 1 form, one byte of parity and thirty-two bytes of coordinate.</div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a secret key is: a P-256 scalar, in [1, n).</div></div>
+      </div>
+
+      <div class="pkg" id="pkg-mlkem768p256tag">
+        <h3>mlkem768p256tag</h3>
+        <p class="desc">The tagged recipient type that has to outlive a quantum computer: an ML-KEM-768 key hybridised with a P-256 point, under HPKE.</p>
+        <div class="fn"><div class="sig">pub struct Identity {
+  // private fields
+}</div><div class="d">A secret key: one seed, from which the ML-KEM key and the P-256 scalar are both expanded.</div><div class="d">As with the plain tagged type, the format defines no written form for it. A device that keeps a seed of its own and expands it the way HPKE does has an identity here without inventing an encoding.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::from_seed(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A seed derived from a caller's bytes, by HPKE's <code>DeriveKeyPair</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::generate(random~ : &amp;@moonseed.Source) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">A new seed, drawn from <code>random</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw seed, for handing to whatever does keep it.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From thirty-two bytes of seed.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::public(Self) -&gt; <span class="r">Recipient</span></div><div class="d">The public half, which is what a sender needs.</div></div>
+        <div class="fn"><div class="sig">pub fn Identity::unwrap(Self, stanza~ : @spec.Stanza) -&gt; <span class="r">Bytes? raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub struct Recipient {
+  // private fields
+}</div><div class="d">A public key: an ML-KEM-768 encapsulation key and a P-256 point, as one 1249-byte string, which is the shape the hybrid KEM takes.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::code(Self) -&gt; <span class="r">String</span></div><div class="d">The written form, <code>age1tagpq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::key(Self) -&gt; <span class="r">BytesView</span></div><div class="d">The raw key, for comparing one recipient with another.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::new(BytesView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From the 1249 bytes of a public key.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::of(StringView) -&gt; <span class="r">Self raise @spec.Refused</span></div><div class="d">From its written form, <code>age1tagpq1…</code>.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::tag(Self, BytesView) -&gt; <span class="r">Bytes</span></div><div class="d">The four-byte tag that names this key in a stanza, for the encapsulation the sender drew.</div><div class="d">Only the P-256 half is hashed. The ML-KEM half may be sealed inside the device, unreadable without it, and a tag that cannot be computed without the device would be no use to the reader that has it.</div></div>
+        <div class="fn"><div class="sig">pub fn Recipient::wrap(Self, file_key~ : BytesView, random~ : &amp;@moonseed.Source) -&gt; <span class="r">@spec.Stanza raise @spec.Refused</span></div></div>
+        <div class="fn"><div class="sig">pub let public_size : Int32</div><div class="d">How long a public key is: an ML-KEM-768 encapsulation key with an uncompressed P-256 point behind it, written as one string.</div><div class="d">It is written as a sum because the numbers are FIPS 203's and the curve's, and a reader should be able to check them without a calculator.</div></div>
+        <div class="fn"><div class="sig">pub let size : Int32</div><div class="d">How long a secret key is: one thirty-two-byte seed, from which both halves are expanded.</div></div>
+      </div>
+<!-- /generated:api -->
+    </div>
+  </div>
+
+  <footer>Apache-2.0 · <a href="https://github.com/moonbitstack/moonseal">github.com/moonbitstack/moonseal</a></footer>
+</div>
+</body>
+</html>

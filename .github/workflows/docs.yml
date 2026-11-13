@@ -41,7 +41,7 @@ jobs:
           moon update
           moon info --target all
           python3 scripts/gen_api.py
-          git diff --exit-code docs/index.html
+          git diff --exit-code docs/api.html
 
       - name: build the engine the console seals with
         run: |

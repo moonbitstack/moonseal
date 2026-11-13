@@ -1,4 +1,4 @@
-"""Fill the API panel of docs/index.html from the package interfaces.
+"""Fill the API reference of docs/api.html from the package interfaces.
 
 Every public type, value and function comes from the `pkg.generated.mbti` that
 `moon info` writes, with the `///` comment above its definition; the package
@@ -13,7 +13,7 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
-PAGE = ROOT / "docs" / "index.html"
+PAGE = ROOT / "docs" / "api.html"
 
 # The container first, then its contract, then the parts it is made of.
 PACKAGES = [

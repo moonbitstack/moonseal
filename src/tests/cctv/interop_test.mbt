@@ -88,5 +88,5 @@ test "interop: the file we write opens to the vector's bytes" {
   let plain = @moonseal.open(identities, published) catch {
     error => fail("open refused: \{error}")
   }
-  assert_eq(@hex.encode(@sha2.hash(plain)), case.digest)
+  assert_eq(@base16.encode(@sha2.hash(plain)), case.digest)
 }

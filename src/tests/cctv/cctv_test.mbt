@@ -93,7 +93,7 @@ test "cctv: the age test vectors" {
         if got != vector.expect {
           failures.push("\{vector.name}: expected \{vector.expect}, got \{got}")
         } else if got == @cctv.Success {
-          let digest = @hex.encode(@sha2.hash(plain))
+          let digest = @base16.encode(@sha2.hash(plain))
           if digest != vector.digest {
             failures.push("\{vector.name}: opened to the wrong bytes")
           }

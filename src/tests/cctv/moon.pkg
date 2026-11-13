@@ -12,7 +12,7 @@
 warnings = "-33"
 
 import {
-  "moonbitlang/core/encoding/hex",
+  "moonbitstack/moonbase/base16",
   "moonbitlang/core/encoding/utf8",
   "moonbitstack/moonseal",
   "moonbitstack/moonbase/base64",

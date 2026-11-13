@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>moonseal — guide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a120b'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23d9a441'/%3E%3Cpath d='M10 13h12v6H10z' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3Cpath d='M10 13l6 5 6-5' fill='none' stroke='%231a120b' stroke-width='1.7'/%3E%3C/svg%3E"/>
+<link rel="stylesheet" href="assets/style.css"/>
+<style>
+  /* guide-specific layout, reusing the wood/brass palette from style.css */
+  .guide-hero{padding:96px 0 18px;}
+  .guide-hero .kicker{font-family:var(--mono); font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--brass);}
+  .guide-hero h1{font-family:var(--serif); font-weight:600; font-size:clamp(30px,4.6vw,46px); line-height:1.1; margin:14px 0 12px; color:var(--crema); text-shadow:0 -1px 0 rgba(0,0,0,.55), 0 1px 0 var(--carve-hi);}
+  .guide-hero p{font-size:18px; color:var(--dim); max-width:64ch;}
+
+  .toc{display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 4px;}
+  .toc a{font-family:var(--mono); font-size:12.5px; color:var(--dim); border:1px solid var(--wood-4); border-left:3px solid var(--brass); border-radius:0 9px 9px 0; padding:7px 13px; background:linear-gradient(180deg,var(--wood-3),var(--wood-2)); box-shadow:inset 0 0 0 1px var(--brass-dim);}
+  .toc a:hover{color:var(--brass-2); text-decoration:none; border-color:var(--brass);}
+
+  .ex{margin:40px 0 8px;}
+  .ex h2{font-family:var(--serif); font-size:26px; font-weight:600; margin:0 0 4px; color:var(--crema); border-bottom:1px solid var(--brass-dim); padding-bottom:8px; text-shadow:0 -1px 0 rgba(0,0,0,.5), 0 1px 0 var(--carve-hi);}
+  .ex .lead{color:var(--dim); font-size:15.5px; margin:12px 0 4px;}
+  .ex .lead code{font-family:var(--mono); font-size:13px; color:var(--parch);}
+
+  .src{position:relative; border:1px solid var(--wood-4); border-radius:0; background:linear-gradient(180deg,var(--wood-3),var(--wood-2)); box-shadow:0 0 0 1px rgba(0,0,0,.4), inset 0 0 0 1px var(--brass-dim), inset 1px 1px 0 var(--carve-hi), inset -1px -1px 0 var(--carve-lo); margin:14px 0; overflow:auto;}
+  .src code{display:block; padding:16px 18px; font-family:var(--mono); font-size:13px; line-height:1.55; color:var(--parch); white-space:pre; overflow-wrap:normal;}
+  .src .cm{color:var(--teal);}
+  .src .kw{color:var(--rust);}
+  .src .fn{color:var(--brass-2);}
+
+  .lbl{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); margin:18px 0 0;}
+
+  .callout{border:1px solid var(--brass-dim); border-left:3px solid var(--rust); border-radius:0 9px 9px 0; background:rgba(0,0,0,.22); padding:12px 16px; margin:16px 0; color:var(--dim); font-size:14px;}
+  .callout b{color:var(--crema);}
+
+  pre.out{margin:10px 0 6px; min-height:0; border:1px solid var(--wood-4); border-radius:0;}
+  .out-h{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); margin:18px 0 2px;}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wm">
+    <svg viewBox="0 0 32 32">
+      <defs><radialGradient id="lg" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#4a3320"/><stop offset="1" stop-color="#231710"/></radialGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="url(#lg)" stroke="#c8a35a" stroke-width="1.1"/>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1" transform="translate(0,1)"/>
+      <path d="M9 13h14v6H9z" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+      <path d="M9 13l7 5 7-5" fill="none" stroke="#e3c483" stroke-width="1.6"/>
+    </svg>
+    moonseal
+  </div>
+  <nav class="top">
+    <a href="index.html#home">Home</a>
+    <a href="guide.html">Guide</a>
+    <a href="api.html">API</a>
+    <a href="index.html#console">Console</a>
+    <a class="gh" href="https://github.com/moonbitstack/moonseal" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.49-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.81.06 1.23.83 1.23.83.72 1.23 1.88.88 2.34.67.07-.52.28-.88.51-1.08-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.52.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <section class="guide-hero">
+    <div class="kicker">age-encryption.org/v1 · MoonBit</div>
+    <h1>The guide — one file, several readers, no key server</h1>
+    <p class="lead-none">A sealed file is a header of recipient stanzas over a streaming payload. Every stanza wraps the same sixteen-byte file key, so a file addressed to four people is one file and any one of them opens it. This page walks through every recipient type moonseal supports, the streaming path, the armored text form, and how to add your own recipient type. Each snippet compiles, and each printed block is the output of that snippet run as-written.</p>
+  </section>
+
+  <div class="lattice-div" aria-hidden="true"></div>
+
+  <!-- SETUP -->
+  <h2 class="section-title" id="setup">Setup</h2>
+  <p class="section-sub">Add the library and the randomness source, then declare the packages you use in <code>moon.pkg</code>.</p>
+
+  <div class="src"><code><span class="cm"># moon.mod</span>
+name = "your-app"
+source = "."
+import {
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseed",
+}</code></div>
+
+  <div class="src"><code><span class="cm"># moon.pkg (the package that uses moonseal)</span>
+import {
+  "moonbitstack/moonseal",
+  "moonbitstack/moonseal/spec",
+  "moonbitstack/moonseal/x25519",
+  "moonbitstack/moonseal/scrypt",
+  "moonbitstack/moonseal/ssh",
+  "moonbitstack/moonseal/mlkem768x25519",
+  "moonbitstack/moonseal/p256tag",
+  "moonbitstack/moonseal/mlkem768p256tag",
+  "moonbitstack/moonseed",
+}</code></div>
+
+  <div class="callout">
+    <b>Randomness.</b> Every call that seals takes a <code>random~</code> source. In a real program pass <code>@system.source</code> from <code>moonbitstack/moonseed/system</code>. The snippets below instead pin a deterministic source with <code>@moonseed.Replay::new(Bytes::make(n, 0xNN))</code> so the printed output is reproducible and matches what you see here. Swap in <code>@system.source</code> and the bytes change but the shape does not. Core packages such as <code>@utf8</code> and <code>@bytes</code> need no import.
+  </div>
+
+  <div class="toc">
+    <a href="#passphrase">Passphrase</a>
+    <a href="#keypair">Key pair</a>
+    <a href="#ssh">SSH key</a>
+    <a href="#post-quantum">Post-quantum</a>
+    <a href="#tagged">Tagged</a>
+    <a href="#tagged-pq">Tagged PQ</a>
+    <a href="#stream">Streaming</a>
+    <a href="#armor">Armor</a>
+    <a href="#custom">Custom recipient</a>
+  </div>
+
+  <div class="lattice-div" aria-hidden="true"></div>
+
+  <!-- 1. PASSPHRASE -->
+  <section class="ex" id="passphrase">
+    <h2>1 · A passphrase</h2>
+    <p class="lead">The simplest recipient is a passphrase. <code>@scrypt.Recipient::new</code> derives a key from the phrase with scrypt; <code>log_n</code> sets the work factor (10 is fine for a demo, 14–18 for real use). No keys to manage — the reader supplies the same phrase to open.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">seal_with_passphrase</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> random = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal(
+    [@scrypt.Recipient::new(<span class="cm">"correct horse battery staple", log_n=10</span>)],
+    b<span class="cm">"the quick brown fox\n"</span>,
+    random=random,
+  )
+  <span class="kw">let</span> opened = @moonseal.open(
+    [@scrypt.Identity::new(<span class="cm">"correct horse battery staple"</span>)],
+    file,
+  )
+  println(<span class="cm">"sealed: " + file.length().to_string() + " bytes"</span>)
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(opened)</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- passphrase ---
+sealed: 202 bytes
+opened: the quick brown fox</pre>
+  </section>
+
+  <!-- 2. KEY PAIR -->
+  <section class="ex" id="keypair">
+    <h2>2 · A key pair, then a recipient</h2>
+    <p class="lead">For public-key use, generate an X25519 identity with <code>@x25519.Identity::generate</code>. Hand out <code>identity.public()</code> (an <code>@spec.Recipient</code>) to seal; keep <code>identity</code> (an <code>@spec.Identity</code>) to open. <code>code()</code> renders the bech32 age string; <code>Identity::of</code> / <code>Recipient::of</code> parse one back from text.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">key_pair</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> random = @moonseed.Replay::new(Bytes::make(64, 0x42))
+  <span class="kw">let</span> alice = @x25519.Identity::generate(random=random) catch {
+    _ => abort(<span class="cm">"no randomness"</span>)
+  }
+  println(alice.code())        <span class="cm">// AGE-SECRET-KEY-…</span>
+  println(alice.public().code()) <span class="cm">// age1…</span>
+}
+
+<span class="kw">fn</span> <span class="fn">seal_to_recipient</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> kp = @moonseed.Replay::new(Bytes::make(64, 0x42))
+  <span class="kw">let</span> alice = @x25519.Identity::generate(random=kp) catch { _ => abort(<span class="cm">"no"</span>) }
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(64, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal([alice.public()], b<span class="cm">"the quick brown fox\n"</span>, random=seal_rand) catch {
+    _ => abort(<span class="cm">"cannot seal"</span>)
+  }
+  println(<span class="cm">"sealed: " + file.length().to_string() + " bytes"</span>)
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([alice], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- keypair ---
+AGE-SECRET-KEY-1GFPYYSJZGFPYYSJZGFPYYSJZGFPYYSJZGFPYYSJZGFPYYSJZGFPQ4EGAEX
+age1zvkyg2lqzraa2lnjvqej32nkuu0ues2s82hzrye869xeexvn73equnujwj
+--- recipient ---
+sealed: 220 bytes
+opened: the quick brown fox</pre>
+  </section>
+
+  <!-- 3. SSH -->
+  <section class="ex" id="ssh">
+    <h2>3 · An SSH key the reader already has</h2>
+    <p class="lead">If the reader already holds an SSH key, seal to its public half with <code>@ssh.Recipient::of</code> and open with <code>@ssh.Identity::of</code> on the private half. Ed25519 and RSA are both accepted. <code>kind()</code> reports the algorithm; <code>fingerprint()</code> returns age's short SSH fingerprint.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">ssh_example</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> recipient = @ssh.Recipient::of(
+    <span class="cm">"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFi1otykT1YoBR3We0Xf/eNmdx4W32NHFBqQo+b4DqHM moonseal guide"</span>,
+  ) catch { _ => abort(<span class="cm">"not an SSH key"</span>) }
+  println(<span class="cm">"kind: " + recipient.kind()</span>)
+  println(<span class="cm">"fingerprint: " + recipient.fingerprint()</span>)
+
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(64, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal([recipient], b<span class="cm">"the quick brown fox\n"</span>, random=seal_rand) catch {
+    _ => abort(<span class="cm">"cannot seal"</span>)
+  }
+
+  <span class="kw">let</span> priv_text : String =
+    <span class="cm">"-----BEGIN OPENSSH PRIVATE KEY-----\n"</span> +
+    <span class="cm">"b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\n"</span> +
+    <span class="cm">"QyNTUxOQAAACBYtaLcpE9WKAUd1ntF3/3jZnceFt9jRxQakKPm+A6hzAAAAJhGzMSTRszE\n"</span> +
+    <span class="cm">"kwAAAAtzc2gtZWQyNTUxOQAAACBYtaLcpE9WKAUd1ntF3/3jZnceFt9jRxQakKPm+A6hzA\n"</span> +
+    <span class="cm">"AAAEAPBk/Wd8ZajsZ4fKz8ITJwWncXCrmdlyQVg4nGcvOHRVi1otykT1YoBR3We0Xf/eNm\n"</span> +
+    <span class="cm">"dx4W32NHFBqQo+b4DqHMAAAADm1vb25zZWFsIGd1aWRlAQIDBAUGBw==\n"</span> +
+    <span class="cm">"-----END OPENSSH PRIVATE KEY-----"</span>
+  <span class="kw">let</span> identity = @ssh.Identity::of(priv_text)
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([identity], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- ssh ---
+kind: ssh-ed25519
+fingerprint: f2MncQ
+opened: the quick brown fox</pre>
+  </section>
+
+  <!-- 4. POST-QUANTUM -->
+  <section class="ex" id="post-quantum">
+    <h2>4 · A post-quantum hybrid key</h2>
+    <p class="lead"><code>@mlkem768x25519</code> pairs X25519 with ML-KEM-768. A sealed file stays openable by a classical reader, but resists a future quantum adversary. The API is identical to the plain key pair: generate, hand out <code>.public()</code>, open with the identity.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">post_quantum</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> kp = @moonseed.Replay::new(Bytes::make(128, 0x7a))
+  <span class="kw">let</span> after = @mlkem768x25519.Identity::generate(random=kp) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(after.code())      <span class="cm">// AGE-SECRET-KEY-PQ-…</span>
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal([after.public()], b<span class="cm">"still secret\n"</span>, random=seal_rand) catch {
+    _ => abort(<span class="cm">"no"</span>)
+  }
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([after], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- post-quantum ---
+AGE-SECRET-KEY-PQ-10FA857N60FA857N60FA857N60FA857N60FA857N60FA857N60FAQCETL9H
+opened: still secret</pre>
+  </section>
+
+  <!-- 5. TAGGED -->
+  <section class="ex" id="tagged">
+    <h2>5 · A tagged recipient (key held in hardware)</h2>
+    <p class="lead">A <em>tagged</em> recipient names a key by a short tag instead of a full public key, so the sealed file does not reveal which key opens it. <code>@p256tag</code> uses a P-256 point under the tag. Generate the identity, publish <code>.public()</code> (the <code>age1tag1…</code> string), open with the identity.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">tagged</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> kp = @moonseed.Replay::new(Bytes::make(128, 0x99))
+  <span class="kw">let</span> device = @p256tag.Identity::generate(random=kp) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(device.public().code())  <span class="cm">// age1tag1…</span>
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal([device.public()], b<span class="cm">"for the key on the desk\n"</span>, random=seal_rand) catch {
+    _ => abort(<span class="cm">"no"</span>)
+  }
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([device], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- tagged ---
+age1tag1q0wuyawkyvqmwdp5lwhemmeugtz06kx0na53rswl7v64we6t5rv5vp064z0
+opened: for the key on the desk</pre>
+  </section>
+
+  <!-- 6. TAGGED PQ -->
+  <section class="ex" id="tagged-pq">
+    <h2>6 · A tagged post-quantum recipient</h2>
+    <p class="lead"><code>@mlkem768p256tag</code> combines the tagged P-256 scheme with ML-KEM-768: the key stays unnamed in the header and the file is quantum-resistant. The public code is long because it embeds the ML-KEM ciphertext; the workflow is unchanged.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">tagged_post_quantum</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> kp = @moonseed.Replay::new(Bytes::make(128, 0xbb))
+  <span class="kw">let</span> device = @mlkem768p256tag.Identity::generate(random=kp) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(device.public().code())  <span class="cm">// age1tagpq1… (long)</span>
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  <span class="kw">let</span> file = @moonseal.seal([device.public()], b<span class="cm">"for the key on the desk\n"</span>, random=seal_rand) catch {
+    _ => abort(<span class="cm">"no"</span>)
+  }
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([device], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0; max-height:200px;">--- tagged post-quantum ---
+age1tagpq10yd39yeezsha20akfscgfmr52wppyscentxqppahvxp8y5wf3an22dlhqn6qx2kvcpgmtrrvnexfnuwq283yzdn3yv4jyf5hft9f9gm84xj6slus0xw76fjfg6rgle26hc0t3nahvjge46dt4cvmls6yynzush2kmd3s62pgazyr3hd3dz7uwz5ypfhtzf69j3tjdlx44999xfsmgvsqhrrvu5c3a9pmy4q74sfvnwhqga46qdac0rvqtkzkkqucmsq07lzngm6j87rvzrzm9fkssaw38ssv66nqk3nkvpsq28rwwgvznk2m84ae0plerafgzc7w7k6m5fu06n4empdjcznt8nemve74df3ygz4j4ry4g4zynqsnwjr3a63cgup9uthtvkryxqjfupnntvyh6lar788f2tdsclgrk5vrl264vcn4uvmrzjsuzwwa6jttgj5zxsurj3nekyrrtgpvctxz2jwgjfvcpxdr9rvl53ajyctcthxd4h5f6s7f0uj53fpczuctj4wf5h6hcy9n3w6qjf245f5qyengwdnc7743g0ze49aaqkpljtq8jhquqdshz8f6ghk9zerrr3ead3prftj3wv0eva69n36vys9hl3z2pf6cd3dzgm4vkqg07gpk223n4umtgzfznrydntrrmqyfuqqkdv6hvpvv0nmzct9a2smymkakgkm3dhwq5820l8yxjamqng3sfyxpeyjvklk07wrtdujjmlgryyaey4ut5gvx766slfgvq2uf82ptqvj42mksqvnmh8qqj64t62yjn6u2xv3mt34upwyy28zjc07md7ukv5mpcgufqdfdujselmm2ypeug4d7mxwakud54cdx0svge2utktelzst2dxqpmfmna90zwgkus6qkdvylt09cdxrr9n84pgue3wcs6uh3g7spg76el7ettqwa5dsqhktu4fml5anmpcg5ztlejpfmqucz6q3k99ecnnvmktrarpx4s9yuy4amfw46v9d5s5m7939e4240zgsjwsaxs6p54ytqgv88jf3r2tzhkgujezz3rs04xqs5lyuz04vk5acyk3n8gl74kvl2v0rrn56l4ac8k43sx6wyhy6y6e2lg4g2pv3qla0ng09atsd5xp5y8ygpak25c7l65ghasqvc6yhwlwpu2my9806uvk4ctxvuqjczy7v3zquxwuzpvr7rhrcxghprtkp2p6wxnk7x86zw8w4l4jc030p05myna06gt36ukpm0rv9ev63x0v5zdn8yw9plzzsqrkxl2t9xetfplsy3ek40we3czd6qc9u42cfstyrejglrtjcfwksdwkzjkx3m26xyz2cakc5mqusxg5dg4gz3xuz8clhxe9xscx8kfpev6lunqdzjdwzuvklav4h463faj62srn0r8wnzdzfcgf5e30yjfufvwdf6j389fvcalw7kzfuzundsksg32yvwc7lkpt8g9vej3s9kmewyq6mayj5mdpxdskc9m9mpedw4cm2hc5pxz2glv9trepgv3zfzp6y7ezu4as8u2xavffxy5sl689dtvkaxzufm6vmx4l3pc89u4d8xjj0qqvc3c22e25sgv9vu9judspqsws6ctzjqg0u4ghzfps6l8zlv0ff63z2mqs23mz8uw7jhv4s0kum6udr5l0gefgvh2wjk8w38v528k2j52xet7z32qkj85qtvkqjxcqpg287yf4gxhla4vjucpwlt7cred3a684yy9t3h8qvh66mnekjc2jpelkmx2frzvsukj4f8mzj66mdmwscnp2e550xe7dq8m93y8h3vk9cpsqjty6tgft9p2ux242aa4fkklmmzhnx9k440zqeu8czz8ryalkt38a4qnunre7gyna950a2cthc3p76584pwqn6e8mel3shpz8v52f2hvt6kqy0tx388ssv34n4xuhcyzw4ea0cfvjflase3gpk5k63e5p3n8pq7nza5m5gdjls6h
+opened: for the key on the desk</pre>
+  </section>
+
+  <!-- 7. STREAMING -->
+  <section class="ex" id="stream">
+    <h2>7 · Streaming a file larger than memory</h2>
+    <p class="lead">When the payload does not fit in memory, seal and open through a source and a sink. <code>@moonseal.BytesSource</code> and <code>@moonseal.BytesSink</code> are in-memory stand-ins; replace them with a file or network stream in production. The format is byte-identical to the buffered path, in 64 KiB chunks.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">stream_example</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> sink = @moonseal.BytesSink::new()
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  @moonseal.seal_stream(
+    sink,
+    [@scrypt.Recipient::new(<span class="cm">"correct horse battery staple", log_n=10</span>)],
+    @moonseal.BytesSource::new(b<span class="cm">"the quick brown fox\n"</span>),
+    random=seal_rand,
+  ) catch { _ => abort(<span class="cm">"no"</span>) }
+  <span class="kw">let</span> file = sink.bytes()
+
+  <span class="kw">let</span> open_sink = @moonseal.BytesSink::new()
+  @moonseal.open_stream(
+    open_sink,
+    [@scrypt.Identity::new(<span class="cm">"correct horse battery staple"</span>)],
+    @moonseal.BytesSource::new(file),
+  ) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(open_sink.bytes())</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- stream ---
+opened: the quick brown fox</pre>
+  </section>
+
+  <!-- 8. ARMOR -->
+  <section class="ex" id="armor">
+    <h2>8 · Armor: the file as text</h2>
+    <p class="lead">When the ciphertext must travel through a text-only channel (chat, email, a paste), <code>seal_armored</code> wraps the age file in a PEM-style envelope. <code>open_armored</code> reads it back. The body is the same age v1 stream, base64-encoded.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">fn</span> <span class="fn">armor_example</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> seal_rand = @moonseed.Replay::new(Bytes::make(128, 0x21))
+  <span class="kw">let</span> text = @moonseal.seal_armored(
+    [@scrypt.Recipient::new(<span class="cm">"correct horse battery staple", log_n=10</span>)],
+    b<span class="cm">"the quick brown fox\n"</span>,
+    random=seal_rand,
+  ) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(text)  <span class="cm">// the armored age file</span>
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- armor ---
+-----BEGIN AGE ENCRYPTED FILE-----
+YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNjcnlwdCBJU0VoSVNFaElTRWhJU0Vo
+SVNFaElRIDEwClpWTThtc0tTekY3cnZJMklrZWRhUG43SHhFVHRiRzZoMG9FbVky
+NlJ2TzgKLS0tIDlwL09yaDRmUWlaaklKcUp0MGlnMzBWNWdwZHlBSTBLdHFOWnhV
+ZHE0N2MKISEhISEhISEhISEhISEhISknpBd0rIwD4A1Z7Lby9lt2n1S4ggaR1wSF
+OddHwrwSvDsqhQ==
+-----END AGE ENCRYPTED FILE-----</pre>
+  </section>
+
+  <!-- 9. CUSTOM -->
+  <section class="ex" id="custom">
+    <h2>9 · Your own recipient type</h2>
+    <p class="lead">A recipient is two traits: <code>@spec.Recipient</code> wraps the file key into a stanza, and <code>@spec.Identity</code> unwraps it. Implement both and the type drops into any <code>seal</code> / <code>open</code> call. The example below is a transparent stand-in that hands the file key back verbatim — a real type would wrap it under a key it owns.</p>
+
+    <div class="lbl">moonbit</div>
+    <div class="src"><code><span class="kw">struct</span> Example {}
+
+<span class="kw">impl</span> @spec.Recipient <span class="kw">for</span> Example <span class="kw">with</span> <span class="fn">wrap</span>(self, file_key~, random~) {
+  ignore(self)
+  ignore(random)
+  @spec.Stanza::new(kind=<span class="cm">"example.com/plain"</span>, args=[], body=file_key.to_owned())
+}
+
+<span class="kw">impl</span> @spec.Identity <span class="kw">for</span> Example <span class="kw">with</span> <span class="fn">unwrap</span>(self, stanza~) {
+  ignore(self)
+  <span class="kw">if</span> stanza.kind == <span class="cm">"example.com/plain"</span> {
+    <span class="kw">return</span> Some(stanza.body)
+  }
+  None
+}
+
+<span class="kw">fn</span> <span class="fn">custom_example</span>() -> Unit raise @spec.Refused {
+  <span class="kw">let</span> file = @moonseal.seal(
+    [Example::{}],
+    b<span class="cm">"the quick brown fox\n"</span>,
+    random=@moonseed.Replay::new(Bytes::make(64, 0x21)),
+  ) catch { _ => abort(<span class="cm">"no"</span>) }
+  println(<span class="cm">"opened: " + @utf8.decode_lossy(@moonseal.open([Example::{}], file))</span>)
+}</code></div>
+
+    <div class="out-h">output</div>
+    <pre class="out" style="min-height:0">--- custom recipient ---
+opened: the quick brown fox</pre>
+
+    <div class="callout">
+      <b>Interoperability note.</b> Anything moonseal seals is a plain age v1 file. The armored block above, and every sealed file in this guide, opens with <code>age</code>, <code>rage</code>, and any other conforming implementation — and their files open here. The CI exchanges a sealed file with <code>age</code> and <code>rage</code> on every run.
+    </div>
+  </section>
+
+  <div class="lattice-div" aria-hidden="true"></div>
+
+  <footer>
+    Apache-2.0 · <a href="https://github.com/moonbitstack/moonseal">github.com/moonbitstack/moonseal</a>
+    · <a href="api.html">API reference</a> · <a href="index.html#console">Console</a>
+  </footer>
+</div>
+</body>
+</html>

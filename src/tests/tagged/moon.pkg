@@ -13,5 +13,5 @@ import {
   "moonbitstack/moonseal/mlkem768p256tag",
   "moonbitstack/mooncrypt/hash/sha2",
   "moonbitstack/moonseed",
-  "moonbitlang/core/encoding/hex",
+  "moonbitstack/moonbase/base16",
 } for "test"

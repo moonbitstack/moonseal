@@ -44,7 +44,7 @@ fn encapsulation() -> Bytes {
 ///|
 test "the seed derives the identity the reference implementation derives" {
   assert_eq(identity().public().code(), published)
-  assert_eq(@hex.encode(identity().key()), seed_hex)
+  assert_eq(@base16.encode(identity().key()), seed_hex)
 }
 
 ///|
@@ -62,7 +62,7 @@ test "the tag of a known encapsulation is the one the reference computes" {
   let recipient = @mlkem768p256tag.Recipient::of(published) catch {
     _ => abort("no")
   }
-  assert_eq(@hex.encode(recipient.tag(encapsulation())), "d3f8ac2a")
+  assert_eq(@base16.encode(recipient.tag(encapsulation())), "d3f8ac2a")
 }
 
 ///|

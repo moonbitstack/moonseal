@@ -75,7 +75,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           python3 scripts/gen_api.py
-          git diff --exit-code docs/index.html
+          git diff --exit-code docs/api.html
 
       # A reader pastes the blocks of the README and the skills into a project,
       # so they have to compile as written, against this commit's source.
@@ -125,7 +125,10 @@ jobs:
       - name: build the interop example
         run: |
           moon update
-          moon build --target native --release src/examples/interop
+          cd integration
+          moon build --target native --release interop
 
       - name: exchange files with age and rage
-        run: scripts/interop.sh _build/native/release/build/examples/interop/interop.exe
+        run: |
+          bin=$(find integration/_build -type f \( -name interop -o -name interop.exe \) | head -n1)
+          scripts/interop.sh "$bin"

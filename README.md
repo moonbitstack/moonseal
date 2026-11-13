@@ -2,7 +2,7 @@
 
 Seal a file for several people at once; any one of them opens it.
 
-[Home and console](https://moonbitstack.github.io/moonseal/) · [API](https://moonbitstack.github.io/moonseal/#api) · [age v1](https://age-encryption.org/v1)
+[Home](https://moonbitstack.github.io/moonseal/) · [Guide](https://moonbitstack.github.io/moonseal/guide.html) · [API](https://moonbitstack.github.io/moonseal/api.html) · [mooncakes](https://mooncakes.io/packages/moonbitstack/moonseal)
 
 A sealed file is a header of recipient stanzas over a streaming payload. Each
 stanza carries the same sixteen-byte file key, wrapped so that one reader can

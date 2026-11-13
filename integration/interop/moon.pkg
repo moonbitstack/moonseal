@@ -1,9 +1,9 @@
 // A command line around the library, for the one job the examples cannot do:
 // exchange files with another age implementation.
 //
-//     moon run src/examples/interop -- seal  <in> <out> <recipients>
-//     moon run src/examples/interop -- open  <in> <out> <identity>...
-//     moon run src/examples/interop -- recipient <identity>
+//     moon run integration/interop -- seal  <in> <out> <recipients>
+//     moon run integration/interop -- open  <in> <out> <identity>...
+//     moon run integration/interop -- recipient <identity>
 //
 // A recipients file holds one recipient per line: an `age1…` key, an
 // `age1pq1…` key, an `ssh-ed25519` or `ssh-rsa` line, or `passphrase:text`.
@@ -13,7 +13,11 @@
 //
 // Files are read whole, which is what a test fixture is; the library's
 // streaming calls are what a program with a file bigger than memory uses.
+//
+// This tool pulls `moonbitlang/x` in for file I/O, so it lives in its own
+// module (`integration/`) and stays out of the library's dependencies.
 pkgtype(kind: "executable")
+supported_targets = "native"
 
 import {
   "moonbitlang/core/encoding/utf8",
