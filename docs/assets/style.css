@@ -213,7 +213,8 @@ footer{border-top:1px solid var(--line); margin-top:64px; padding:26px 30px; col
 .corner.br{bottom:0; right:0; transform:scale(-1,-1);}
 
 @media (width <= 720px){
-  nav.top{gap:16px;}
+  header.bar{flex-wrap:wrap;}
+  nav.top{gap:16px; min-width:0; flex-wrap:wrap;}
   nav.top a.gh{font-size:0; gap:0;}
   .hero{display:block; padding:64px 0 20px;}
   .medallion{display:none;}
