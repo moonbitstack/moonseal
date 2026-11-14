@@ -1,6 +1,6 @@
 name = "moonbitstack/moonseal"
 
-version = "0.1.5"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -61,7 +61,7 @@ description = "File and message encryption for MoonBit, for one or several recip
 source = "src"
 
 import {
-  "moonbitstack/mooncrypt@0.4.13",
-  "moonbitstack/moonseed@0.1.3",
-  "moonbitstack/moonbase@0.4.4",
+  "moonbitstack/mooncrypt@0.5.0",
+  "moonbitstack/moonseed@0.2.0",
+  "moonbitstack/moonbase@0.5.0",
 }
