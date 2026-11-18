@@ -35,7 +35,7 @@ fn seal(plain : BytesView) -> Array[Bytes] {
 /// Open a list of chunks, and give back what came out.
 fn open(chunks : Array[Bytes]) -> Bytes raise @spec.Refused {
   let opener = @stream.Opener::new(key=key()) catch { _ => abort("no") }
-  let out = @buffer.Buffer(size_hint=1024)
+  let out = @buffer.Buffer(capacity=1024)
   for i, chunk in chunks {
     out.write_bytes(opener.chunk(cipher=chunk, last=i == chunks.length() - 1))
   }

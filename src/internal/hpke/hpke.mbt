@@ -53,7 +53,7 @@ let sha256 : () -> &@cryptspec.Hash = fn() -> &@cryptspec.Hash {
 /// and the KDF and AEAD every suite here shares — HKDF-SHA256 (0x0001) and
 /// ChaCha20-Poly1305 (0x0003).
 fn suite(kem : Kem) -> Bytes {
-  let out = @buffer.Buffer(size_hint=10)
+  let out = @buffer.Buffer(capacity=10)
   out.write_bytes(b"HPKE")
   out.write_bytes(u16(kem.id()))
   out.write_bytes(b"\x00\x01\x00\x03")
@@ -64,7 +64,7 @@ fn suite(kem : Kem) -> Bytes {
 /// The identifier a KEM's own labelled functions run under, which RFC 9180 §4
 /// spells as the letters `KEM` and the KEM's number.
 fn kem_suite(kem : Kem) -> Bytes {
-  let out = @buffer.Buffer(size_hint=5)
+  let out = @buffer.Buffer(capacity=5)
   out.write_bytes(b"KEM")
   out.write_bytes(u16(kem.id()))
   out.to_bytes()
@@ -86,7 +86,7 @@ fn labeled_derive(
   label : String,
   len : Int32,
 ) -> Bytes {
-  let material = @buffer.Buffer(size_hint=seed.length() + label.length() + 32)
+  let material = @buffer.Buffer(capacity=seed.length() + label.length() + 32)
   material.write_bytes(seed)
   material.write_bytes(b"HPKE-v1")
   material.write_bytes(kem_suite(kem))
@@ -196,7 +196,7 @@ fn extract(
   label : String,
   ikm : BytesView,
 ) -> Bytes {
-  let material = @buffer.Buffer(size_hint=id.length() + label.length() + 32)
+  let material = @buffer.Buffer(capacity=id.length() + label.length() + 32)
   material.write_bytes(b"HPKE-v1")
   material.write_bytes(id)
   material.write_bytes(@utf8.encode(label))
@@ -214,7 +214,7 @@ fn expand(
   info : BytesView,
   len : Int32,
 ) -> Bytes {
-  let context = @buffer.Buffer(size_hint=id.length() + label.length() + 40)
+  let context = @buffer.Buffer(capacity=id.length() + label.length() + 40)
   context.write_bytes(u16(len))
   context.write_bytes(b"HPKE-v1")
   context.write_bytes(id)
@@ -233,7 +233,7 @@ pub fn context(kem : Kem, shared : BytesView, info : BytesView) -> Context {
   let id = suite(kem)
   let psk_id_hash = extract(id, b""[:], "psk_id_hash", b""[:])
   let info_hash = extract(id, b""[:], "info_hash", info)
-  let schedule = @buffer.Buffer(size_hint=1 + psk_id_hash.length() * 2)
+  let schedule = @buffer.Buffer(capacity=1 + psk_id_hash.length() * 2)
   schedule.write_byte(b'\x00')
   schedule.write_bytes(psk_id_hash)
   schedule.write_bytes(info_hash)

@@ -86,7 +86,7 @@ pub fn Recipient::tag(self : Recipient, enc : BytesView) -> Bytes {
 /// A point in the compressed form the format writes: the parity of the second
 /// coordinate, then the first.
 fn compress(point : BytesView) -> Bytes {
-  let out = @buffer.Buffer(size_hint=point_size)
+  let out = @buffer.Buffer(capacity=point_size)
   let odd = (point[64].to_int() & 1) == 1
   out.write_byte(if odd { b'\x03' } else { b'\x02' })
   out.write_bytes(point.clamped_view(start=1, end=33))

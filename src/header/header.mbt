@@ -158,7 +158,7 @@ fn stanza_at(
     args.push(tokens[i])
   }
   let mut cursor = end + 1
-  let body = @buffer.Buffer(size_hint=256)
+  let body = @buffer.Buffer(capacity=256)
   // Full lines are exactly 64 columns; the body ends at the first line that is
   // shorter, which may be empty.
   while true {
@@ -240,7 +240,7 @@ fn argument(
 /// Bytes that are about to be handed to a decoder, as text. The character range
 /// is the decoder's business.
 fn ascii(bytes : BytesView, start : Int32, end : Int32) -> String {
-  let out = StringBuilder(size_hint=end - start)
+  let out = StringBuilder(capacity=end - start)
   for i in start..<end {
     out.write_char(bytes[i].to_int().unsafe_to_char())
   }
@@ -302,7 +302,7 @@ fn check(stanzas : Array[@spec.Stanza]) -> Unit raise @spec.Refused {
 ///|
 /// The header as text, up to but not including the `---` of the MAC line.
 fn render(stanzas : Array[@spec.Stanza]) -> Bytes {
-  let out = @buffer.Buffer(size_hint=1024)
+  let out = @buffer.Buffer(capacity=1024)
   out.write_bytes(@utf8.encode(version))
   out.write_byte(b'\n')
   for stanza in stanzas {

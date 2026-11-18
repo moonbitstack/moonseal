@@ -19,7 +19,7 @@ pub fn compute(
   enc : BytesView,
   label~ : BytesView,
 ) -> Bytes {
-  let named = @buffer.Buffer(size_hint=enc.length() + 4)
+  let named = @buffer.Buffer(capacity=enc.length() + 4)
   named.write_bytes(enc)
   named.write_bytes(@sha2.hash(recipient).clamped_view(end=4))
   let prk = @hkdf.extract(named.to_bytes(), sha256, salt=label)

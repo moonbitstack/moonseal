@@ -16,7 +16,7 @@ let group : Int32 = 48
 ///|
 /// The line that starts a block, and the one that ends it.
 fn begin_line() -> Bytes {
-  let out = @buffer.Buffer(size_hint=40)
+  let out = @buffer.Buffer(capacity=40)
   out.write_bytes(b"-----BEGIN ")
   out.write_bytes(@utf8.encode(label))
   out.write_bytes(b"-----")
@@ -25,7 +25,7 @@ fn begin_line() -> Bytes {
 
 ///|
 fn end_line() -> Bytes {
-  let out = @buffer.Buffer(size_hint=40)
+  let out = @buffer.Buffer(capacity=40)
   out.write_bytes(b"-----END ")
   out.write_bytes(@utf8.encode(label))
   out.write_bytes(b"-----")
@@ -37,7 +37,7 @@ fn end_line() -> Bytes {
 /// the last one, so that the result survives being concatenated.
 pub fn encode(bytes : BytesView) -> String {
   let encoder = Encoder::new()
-  let text = StringBuilder(size_hint=bytes.length() * 3 / 2 + 96)
+  let text = StringBuilder(capacity=bytes.length() * 3 / 2 + 96)
   text.write_string(head())
   text.write_string(encoder.write(bytes))
   text.write_string(encoder.finish())
@@ -47,7 +47,7 @@ pub fn encode(bytes : BytesView) -> String {
 ///|
 /// The line that opens a block, with its line feed.
 pub fn head() -> String {
-  let out = StringBuilder(size_hint=40)
+  let out = StringBuilder(capacity=40)
   out.write_string("-----BEGIN \{label}-----\n")
   out.to_string()
 }
@@ -70,7 +70,7 @@ pub struct Encoder {
 
 ///|
 pub fn Encoder::new() -> Self {
-  { pending: @buffer.Buffer(size_hint=group), }
+  { pending: @buffer.Buffer(capacity=group), }
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn Encoder::new() -> Self {
 pub fn Encoder::write(self : Encoder, bytes : BytesView) -> String {
   self.pending.write_bytes(bytes)
   let held = self.pending.to_bytes()
-  let out = StringBuilder(size_hint=held.length() * 3 / 2 + 4)
+  let out = StringBuilder(capacity=held.length() * 3 / 2 + 4)
   let mut at = 0
   while held.length() - at >= group {
     out.write_string(
@@ -99,7 +99,7 @@ pub fn Encoder::write(self : Encoder, bytes : BytesView) -> String {
 /// that carries no bytes rather than a block that carries an empty line.
 pub fn Encoder::finish(self : Encoder) -> String {
   let held = self.pending.to_bytes()
-  let out = StringBuilder(size_hint=8)
+  let out = StringBuilder(capacity=8)
   if held.length() > 0 {
     out.write_string(@base64.encode(held))
     out.write_char('\n')
@@ -130,8 +130,8 @@ pub struct Decoder {
 pub fn Decoder::new() -> Self {
   {
     place: Leading,
-    line: @buffer.Buffer(size_hint=columns + 2),
-    out: @buffer.Buffer(size_hint=1024),
+    line: @buffer.Buffer(capacity=columns + 2),
+    out: @buffer.Buffer(capacity=1024),
     at: 0,
   }
 }
@@ -259,7 +259,7 @@ fn blank(line : BytesView) -> Bool {
 
 ///|
 fn text_of(line : BytesView) -> String {
-  let out = StringBuilder(size_hint=line.length())
+  let out = StringBuilder(capacity=line.length())
   for byte in line {
     out.write_char(byte.to_int().unsafe_to_char())
   }

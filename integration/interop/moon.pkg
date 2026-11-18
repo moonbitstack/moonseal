@@ -17,6 +17,7 @@
 // This tool pulls `moonbitlang/x` in for file I/O, so it lives in its own
 // module (`integration/`) and stays out of the library's dependencies.
 pkgtype(kind: "executable")
+
 supported_targets = "native"
 
 import {

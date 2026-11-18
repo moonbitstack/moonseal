@@ -46,7 +46,7 @@ test "a last line may be a full line" {
 test "armor written in pieces is the same armor" {
   let plain = Bytes::make(1000, 0x31)
   let encoder = @armor.Encoder::new()
-  let pieces = StringBuilder(size_hint=2048)
+  let pieces = StringBuilder(capacity=2048)
   pieces.write_string(@armor.head())
   let mut at = 0
   while at < plain.length() {
@@ -64,7 +64,7 @@ test "armor read in pieces is the same file" {
   let plain = Bytes::make(300, 0x32)
   let text = @armor.encode(plain)
   let decoder = @armor.Decoder::new()
-  let out = @buffer.Buffer(size_hint=512)
+  let out = @buffer.Buffer(capacity=512)
   let units = text.code_units()
   let mut at = 0
   // Seven characters at a time cuts inside lines as well as between them, which
@@ -81,7 +81,7 @@ test "armor read in pieces is the same file" {
 
 ///|
 fn text_of(units : ArrayView[UInt16], start : Int32, end : Int32) -> StringView {
-  let out = StringBuilder(size_hint=end - start)
+  let out = StringBuilder(capacity=end - start)
   for i in start..<end {
     out.write_char(units[i].unsafe_to_char())
   }

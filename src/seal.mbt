@@ -56,7 +56,7 @@ pub impl Source for BytesSource with fn read(self, limit~) {
 /// The whole of a source, which is what a caller does when the input is small
 /// enough to hold and they would rather see it than stream it.
 pub fn drain(source : &Source) -> Bytes raise @spec.Refused {
-  let out = @buffer.Buffer(size_hint=4096)
+  let out = @buffer.Buffer(capacity=4096)
   while true {
     let piece = source.read(limit=@stream.chunk)
     if piece.length() == 0 {
@@ -75,7 +75,7 @@ pub struct BytesSink {
 
 ///|
 pub fn BytesSink::new() -> Self {
-  { buffer: @buffer.Buffer(size_hint=4096), }
+  { buffer: @buffer.Buffer(capacity=4096), }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn seal(
   }
   let nonce = @spec.draw(random, @stream.nonce)
   let head = @header.Header::new(stanzas)
-  let out = @buffer.Buffer(size_hint=plain.length() + 1024)
+  let out = @buffer.Buffer(capacity=plain.length() + 1024)
   out.write_bytes(head.encode(file_key~))
   out.write_bytes(nonce)
   let sealer = @stream.Sealer::new(key=@stream.payload_key(file_key~, nonce~))
@@ -212,7 +212,7 @@ fn payload(
   let nonce = bytes.clamped_view(end=@stream.nonce)
   let opener = @stream.Opener::new(key=@stream.payload_key(file_key~, nonce~))
   let body = bytes.clamped_view(start=@stream.nonce)
-  let out = @buffer.Buffer(size_hint=body.length())
+  let out = @buffer.Buffer(capacity=body.length())
   let mut base = 0
   while true {
     let left = body.length() - base

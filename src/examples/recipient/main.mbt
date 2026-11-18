@@ -70,7 +70,7 @@ impl @spec.Identity for Identity with fn unwrap(self, stanza~) {
 ///|
 /// The salt as text, since an argument is printable ASCII and nothing else.
 fn hex_of(bytes : BytesView) -> String {
-  let out = StringBuilder(size_hint=bytes.length() * 2)
+  let out = StringBuilder(capacity=bytes.length() * 2)
   for byte in bytes {
     let value = byte.to_int()
     out.write_char(digit(value >> 4))

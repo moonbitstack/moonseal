@@ -12,7 +12,7 @@ let openssh_label : String = "OPENSSH PRIVATE KEY"
 ///|
 /// `string` for a key type, then `string` for the key itself.
 fn ed25519_blob(public : BytesView) -> Bytes {
-  let out = @buffer.Buffer(size_hint=64)
+  let out = @buffer.Buffer(capacity=64)
   put_string(out, @utf8.encode(ed25519_kind))
   put_string(out, public)
   out.to_bytes()
@@ -21,7 +21,7 @@ fn ed25519_blob(public : BytesView) -> Bytes {
 ///|
 /// The RSA public key as SSH writes it: the type, the exponent, the modulus.
 fn rsa_blob(exponent : BytesView, modulus : BytesView) -> Bytes {
-  let out = @buffer.Buffer(size_hint=modulus.length() + exponent.length() + 16)
+  let out = @buffer.Buffer(capacity=modulus.length() + exponent.length() + 16)
   put_string(out, @utf8.encode(rsa_kind))
   put_mpint(out, exponent)
   put_mpint(out, modulus)

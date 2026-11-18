@@ -144,7 +144,7 @@ fn tag_of(blob : BytesView) -> String {
 /// what makes a `known_hosts` line, with a host in front, parse.
 fn words_of(text : StringView) -> Array[String] {
   let words = Array(capacity=4)
-  let word = @buffer.Buffer(size_hint=32)
+  let word = @buffer.Buffer(capacity=32)
   for unit in text.code_units() {
     let code = unit.to_int()
     if code == 32 || code == 9 || code == 10 || code == 13 {
@@ -167,7 +167,7 @@ fn words_of(text : StringView) -> Array[String] {
 /// byte outside it becomes a replacement character, which matches no key type
 /// and so fails where it should.
 fn ascii(bytes : BytesView) -> String {
-  let out = StringBuilder(size_hint=bytes.length())
+  let out = StringBuilder(capacity=bytes.length())
   for byte in bytes {
     let unit = byte.to_int()
     out.write_char(if unit < 0x80 { unit.unsafe_to_char() } else { '\u{FFFD}' })

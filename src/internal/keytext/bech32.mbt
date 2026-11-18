@@ -167,7 +167,7 @@ pub fn decode(
   if separator < 1 || length - separator - 1 < 6 {
     raise Malformed::Bad
   }
-  let prefix = StringBuilder(size_hint=separator)
+  let prefix = StringBuilder(capacity=separator)
   for i in 0..<separator {
     let code = text[i].to_int()
     prefix.write_char(
@@ -235,7 +235,7 @@ pub fn encode(hrp : StringView, bytes : BytesView, kind~ : Kind) -> String {
     values.push(0)
   }
   let checksum = polymod(values) ^ constant(kind)
-  let out = StringBuilder(size_hint=hrp.length() + words.length() + 8)
+  let out = StringBuilder(capacity=hrp.length() + words.length() + 8)
   out.write_string(hrp.to_owned())
   out.write_char('1')
   for word in words {

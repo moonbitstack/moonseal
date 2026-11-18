@@ -116,7 +116,7 @@ fn combine(
   share : BytesView,
   public : BytesView,
 ) -> Bytes {
-  let parts = @buffer.Buffer(size_hint=64 + 64 + xwing_label.length())
+  let parts = @buffer.Buffer(capacity=64 + 64 + xwing_label.length())
   parts.write_bytes(pq)
   parts.write_bytes(x)
   parts.write_bytes(share)
