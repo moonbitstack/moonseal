@@ -10,6 +10,6 @@ source = "."
 
 import {
   "moonbitlang/x@0.5.1",
-  "moonbitstack/moonseal@0.1.5",
-  "moonbitstack/moonseed@0.2.0",
+  "moonbitstack/moonseal@0.2.0",
+  "moonbitstack/moonseed@0.2.1",
 }
